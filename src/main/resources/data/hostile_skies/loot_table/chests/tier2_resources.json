@@ -1,0 +1,63 @@
+{
+  "type": "minecraft:chest",
+  "pools": [
+    {
+      "rolls": { "type": "minecraft:uniform", "min": 5.0, "max": 7.0 },
+      "entries": [
+        {
+          "type": "minecraft:item", "name": "minecraft:emerald", "weight": 10,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 3.0, "max": 7.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "minecraft:iron_ingot", "weight": 8,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 3.0, "max": 7.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "minecraft:gold_ingot", "weight": 7,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 2.0, "max": 5.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "minecraft:copper_ingot", "weight": 8,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 5.0, "max": 10.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "minecraft:coal", "weight": 8,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 6.0, "max": 16.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "minecraft:string", "weight": 6,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 4.0, "max": 8.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "create:andesite_alloy", "weight": 8,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 3.0, "max": 7.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "create:raw_zinc", "weight": 7,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 3.0, "max": 6.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "create:zinc_ingot", "weight": 7,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 2.0, "max": 5.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "create:brass_ingot", "weight": 3,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 1.0, "max": 3.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "minecraft:amethyst_shard", "weight": 4,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 2.0, "max": 4.0 } }]
+        }
+      ]
+    },
+    {
+      "rolls": 1.0,
+      "entries": [
+        { "type": "minecraft:empty", "weight": 8 },
+        { "type": "minecraft:item", "name": "create:goggles", "weight": 2 },
+        { "type": "minecraft:item", "name": "aeronautics:aviators_goggles", "weight": 2 },
+        { "type": "minecraft:item", "name": "create:wrench", "weight": 3 }
+      ]
+    }
+  ]
+}

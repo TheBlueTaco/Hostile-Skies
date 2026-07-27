@@ -1,0 +1,67 @@
+modLoader = "javafml"
+loaderVersion = "${loader_version_range}"
+license = "${mod_license}"
+
+[[mods]]
+modId = "${mod_id}"
+version = "${mod_version}"
+displayName = "${mod_name}"
+#updateJSONURL = ""
+displayURL = "https://modrinth.com/mod/create-hostile-skies"
+logoFile = "hostile_skies_logo.png"
+credits = "Thanks to Vorteks47 for help building the ships, and Marume for the logo"
+authors = "TheBlueTaco"
+description = '''
+Adds pillager themed airship encounters to your world.
+
+§8• Tier progression unlocked by captain kills
+• Bad Omen increases difficulty, crew size, and loot
+• Fully configurable spawn rates, crew scaling, and more§r
+'''
+
+[[dependencies.${mod_id}]]
+    modId = "neoforge"
+    type = "required"
+    versionRange = "[${neo_version},)"
+    ordering = "NONE"
+    side = "BOTH"
+
+[[dependencies.${mod_id}]]
+    modId = "minecraft"
+    type = "required"
+    versionRange = "${minecraft_version_range}"
+    ordering = "NONE"
+    side = "BOTH"
+
+[[dependencies.${mod_id}]]
+    modId = "create"
+    type = "required"
+    versionRange = "[6.0.10,)"
+    ordering = "NONE"
+    side = "BOTH"
+
+[[dependencies.${mod_id}]]
+    modId = "sable"
+    type = "required"
+    versionRange = "[2.0.3,)"
+    ordering = "AFTER"
+    side = "BOTH"
+
+[[dependencies.${mod_id}]]
+    modId = "aeronautics"
+    type = "required"
+    versionRange = "[1.3.0,)"
+    ordering = "AFTER"
+    side = "BOTH"
+
+[[dependencies.${mod_id}]]
+    modId = "simulated"
+    type = "required"
+    versionRange = "[1.3.0,)"
+    ordering = "AFTER"
+    side = "BOTH"
+
+
+
+[[mixins]]
+    config = "hostile_skies.mixins.json"

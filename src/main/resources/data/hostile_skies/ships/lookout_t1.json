@@ -1,0 +1,39 @@
+{
+  "name": "Lookout",
+  "tier": 1,
+  "structure": "lookout_t1",
+
+  "controls": {
+    "lift": {
+      "signal": 11,
+      "levers": [[7, 4, 7]]
+    }
+  },
+
+  "spawning": {
+    "spawnDistance": 40,
+    "circleRadius": 100,
+    "terrainClearance": 40,
+    "minAltitudeAboveSea": 60
+  },
+
+  "crew": {
+    "captain": 1,
+    "pillagers": 0,
+    "vindicators": 0,
+    "captainWeapon": "minecraft:wooden_sword",
+    "captainSpawns": [[6, 3, 7]]
+  },
+
+  "loot": {
+    "containerTable": ""
+  },
+
+  "notes": [
+    "Tall hot air balloon (15x26x15)",
+    "Single throttle lever controls burner only. The propeller runs at constant ~1.52 b/s",
+    "Rear rudder via mechanical bearing at [10,7,7]",
+    "Propeller bearing at [13,12,7], steering wheel at [4,4,7]",
+    "No containers, no loot generation"
+  ]
+}

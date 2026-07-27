@@ -1,0 +1,61 @@
+{
+  "item.hostile_skies.captains_orders": "Captain's Orders",
+  "entity.hostile_skies.helm_chains": "Helm Chains",
+  "hostile_skies.configuration.general": "General",
+  "hostile_skies.configuration.general.tooltip": "Master switches for raid encounters and ship capture",
+  "hostile_skies.configuration.spawn_timing": "Spawn Timing",
+  "hostile_skies.configuration.spawn_timing.tooltip": "Controls when and how often raids spawn",
+  "hostile_skies.configuration.multiplayer": "Multiplayer",
+  "hostile_skies.configuration.multiplayer.tooltip": "Player targeting, grouping, and cooldown settings",
+  "hostile_skies.configuration.tier_system": "Tier System",
+  "hostile_skies.configuration.tier_system.tooltip": "Ship tier progression unlocked by captain kills",
+  "hostile_skies.configuration.weights": "Spawn Weights",
+  "hostile_skies.configuration.weights.tooltip": "Relative probability of each tier being selected",
+  "hostile_skies.configuration.bad_omen": "Bad Omen",
+  "hostile_skies.configuration.bad_omen.tooltip": "How Bad Omen affects raid difficulty and loot",
+  "hostile_skies.configuration.captain_kills": "Captain Kill Tracking",
+  "hostile_skies.configuration.captain_kills.tooltip": "Kill counting mode and tracking settings",
+  "hostile_skies.configuration.audio": "Audio",
+  "hostile_skies.configuration.audio.tooltip": "Sound effects for raid encounters",
+
+  "hostile_skies.configuration.enableRaidSpawns": "Enable Raid Spawns",
+  "hostile_skies.configuration.enableShipCapture": "Enable Ship Capture",
+  "hostile_skies.configuration.debugChatMessages": "Debug Messages",
+
+  "hostile_skies.configuration.spawnAttemptInterval": "Spawn Interval (minutes)",
+  "hostile_skies.configuration.spawnChanceBase": "Base Spawn Chance (%)",
+  "hostile_skies.configuration.spawnChanceIncrement": "Chance Increment Per Fail (%)",
+  "hostile_skies.configuration.spawnChanceMax": "Maximum Spawn Chance (%)",
+  "hostile_skies.configuration.spawnChanceBlockedIncrement": "Blocked Increment (%)",
+
+  "hostile_skies.configuration.maxActiveRaids": "Max Active Raids",
+  "hostile_skies.configuration.personalCooldownMinutes": "Personal Cooldown (minutes)",
+  "hostile_skies.configuration.playerGroupingRadius": "Player Grouping Radius (blocks)",
+  "hostile_skies.configuration.targetWeightBase": "Target Weight Base",
+  "hostile_skies.configuration.targetWeightPerTier": "Weight Per Unlocked Tier",
+  "hostile_skies.configuration.badOmenWeightPerLevel": "Weight Per Bad Omen Level",
+
+  "hostile_skies.configuration.enableTier1": "Enable Tier 1 (Scout)",
+  "hostile_skies.configuration.enableTier2": "Enable Tier 2 (Patrol)",
+  "hostile_skies.configuration.enableTier3": "Enable Tier 3 (Warship)",
+  "hostile_skies.configuration.enableTier4": "Enable Tier 4 (Flagship)",
+  "hostile_skies.configuration.tier2UnlockKills": "Tier 2 Unlock Kills",
+  "hostile_skies.configuration.tier3UnlockKills": "Tier 3 Unlock Kills",
+  "hostile_skies.configuration.tier4UnlockKills": "Tier 4 Unlock Kills",
+
+  "hostile_skies.configuration.tier1Weight": "Tier 1 Weight",
+  "hostile_skies.configuration.tier2Weight": "Tier 2 Weight",
+  "hostile_skies.configuration.tier3Weight": "Tier 3 Weight",
+  "hostile_skies.configuration.tier4Weight": "Tier 4 Weight",
+
+  "hostile_skies.configuration.badOmenCrewMultiplierBase": "Crew Multiplier Base",
+  "hostile_skies.configuration.badOmenCrewMultiplierStep": "Crew Multiplier Step",
+  "hostile_skies.configuration.badOmenLootMultiplierBase": "Loot Multiplier Base",
+  "hostile_skies.configuration.badOmenLootMultiplierStep": "Loot Multiplier Step",
+
+  "hostile_skies.configuration.raidCaptainKillsCounted": "Count Raid Captain Kills",
+  "hostile_skies.configuration.perPlayerKillTracking": "Per-Player Kill Tracking",
+
+  "hostile_skies.configuration.enableSpawnHornSound": "Enable Spawn Horn",
+  "hostile_skies.configuration.hornSoundRange": "Horn Sound Range (blocks)"
+}

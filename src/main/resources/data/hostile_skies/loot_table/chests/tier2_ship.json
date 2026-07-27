@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:chest",
+  "random_sequence": "hostile_skies:chests/tier2_ship",
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        { "type": "minecraft:loot_table", "value": "hostile_skies:chests/tier2_resources", "weight": 4 },
+        { "type": "minecraft:loot_table", "value": "hostile_skies:chests/tier2_provisions", "weight": 4 },
+        { "type": "minecraft:loot_table", "value": "hostile_skies:chests/tier2_repairs", "weight": 3 }
+      ]
+    }
+  ]
+}

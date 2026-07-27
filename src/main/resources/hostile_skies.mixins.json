@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "package": "dev.thebluetaco.hostileskies.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "minVersion": "0.8",
+  "mixins": [
+    "SteeringWheelLockMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

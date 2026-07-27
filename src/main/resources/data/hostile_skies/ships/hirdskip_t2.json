@@ -1,0 +1,58 @@
+{
+  "name": "Hirdskip",
+  "tier": 2,
+  "structure": "hirdskip_t2",
+
+  "controls": {
+    "lift": {
+      "signal": 8,
+      "levers": [[19, 6, 11]]
+    },
+    "throttle": {
+      "signal": 5,
+      "mercySignal": 3,
+      "levers": [[24, 9, 14]]
+    }
+  },
+
+  "navigation": {
+    "terrainMargin": 8.0,
+    "liftBoostMax": 2,
+    "unstickThrottleSignal": 15
+  },
+
+  "spawning": {
+    "spawnDistance": 75,
+    "circleRadius": 105,
+    "terrainClearance": 40,
+    "minAltitudeAboveSea": 60
+  },
+
+  "crew": {
+    "captain": 1,
+    "pillagers": 5,
+    "vindicators": 1,
+    "captainSpawns": [[24, 10, 11]],
+    "crewSpawns": [[22, 4, 10], [22, 4, 12], [20, 4, 9], [19, 5, 9], [19, 5, 12], [14, 5, 11]]
+  },
+
+  "loot": {
+    "containerTable": "hostile_skies:chests/tier2_ship",
+    "captainTable": "hostile_skies:chests/captains_chest",
+    "captainChest": [24, 4, 9]
+  },
+
+  "notes": [
+    "Tier 2 viking steam ship (35x34x23)",
+    "Steam powered (powered on a water wheel)",
+    "Blaze burner at [18,4,11] heats the water tank (runs on fuel refill)",
+    "Steam vent at [17,7,11], fluid tank 3x3x2 at [16-18,5-6,10-12]",
+    "Rear rudder via mechanical bearing at [29,4,11]",
+    "Propeller bearing at [33,22,11], steering wheel at [24,8,11]",
+    "Engine at [29,9,11] (also runs on fuel refill)",
+    "Trapped chest at [24,4,9], contains the captains chest loot table",
+    "Third throttle lever at [18,3,12] is for the pump, not mod-managed",
+    "Redstone wire at [18,7,11] may pop off, placement flag 2 fixes that",
+    "tried to include paintings and item frames in this one, but does not function as of 7/19/26"
+  ]
+}

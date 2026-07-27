@@ -1,0 +1,40 @@
+{
+  "name": "Karve",
+  "tier": 1,
+  "structure": "karve_t1",
+
+  "controls": {
+    "lift": {
+      "signal": 11,
+      "levers": [[9, 2, 3]]
+    },
+    "throttle": {
+      "signal": 12,
+      "mercySignal": 6,
+      "levers": [[12, 3, 3]]
+    }
+  },
+
+  "spawning": {
+    "spawnDistance": 75,
+    "circleRadius": 80,
+    "terrainClearance": 40,
+    "minAltitudeAboveSea": 60
+  },
+
+  "crew": {
+    "captain": 1,
+    "pillagers": 1,
+    "vindicators": 0,
+    "captainWeapon": "minecraft:wooden_sword"
+  },
+
+  "loot": {
+    "containerTable": "hostile_skies:chests/tier1_ship"
+  },
+
+  "notes": [
+    "Small, balloon, scout ship (17x7x13)",
+    "Single andesite propeller + portable engine, front rudder"
+  ]
+}
