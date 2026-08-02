@@ -2,55 +2,78 @@ package dev.thebluetaco.hostileskies.ship;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
 import dev.thebluetaco.hostileskies.HostileSkies;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
+import net.minecraft.util.profiling.ProfilerFiller;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 /**
- * Loads ship templates from JSON files in data/hostile_skies/ships/
- * To add a new ship, drop the .json + .nbt in their places and add the register() call below.
+ * Loads ship templates from data/<namespace>/hostile_skies/ships/*.json.
+ * Any datapack (or mod) can add ships, and /reload picks up changes.
+ * Registered as a reload listener in HostileSkies#onAddReloadListeners.
  */
-public class ShipRegistry {
+public class ShipRegistry extends SimpleJsonResourceReloadListener {
 
     private static final Gson GSON = new GsonBuilder().create();
-    private static final Map<String, ShipTemplate> ships = new LinkedHashMap<>();
-    private static final Map<Integer, List<ShipTemplate>> byTier = new HashMap<>();
+    public static final String DIRECTORY = HostileSkies.MODID + "/ships";
 
-    /** Called once at mod init. Register every ship ID here. */
-    public static void init() {
-        register("karve_t1");
-        register("outrider_t1");
-        register("lookout_t1");
-        register("hirdskip_t2");
+    private static Map<ResourceLocation, ShipTemplate> ships = new LinkedHashMap<>();
+    private static Map<Integer, List<ShipTemplate>> byTier = new HashMap<>();
+
+    public ShipRegistry() {
+        super(GSON, DIRECTORY);
     }
 
-    /** Loads a ship template from /data/hostile_skies/ships/{id}.json */
-    private static void register(String id) {
-        String path = "/data/" + HostileSkies.MODID + "/ships/" + id + ".json";
-        try (InputStream stream = ShipRegistry.class.getResourceAsStream(path)) {
-            if (stream == null) {
-                HostileSkies.LOGGER.error("Ship config not found: {}", path);
-                return;
+    @Override
+    protected void apply(Map<ResourceLocation, JsonElement> files,
+                         ResourceManager resourceManager, ProfilerFiller profiler) {
+        Map<ResourceLocation, ShipTemplate> loaded = new LinkedHashMap<>();
+        Map<Integer, List<ShipTemplate>> tiers = new HashMap<>();
+
+        files.forEach((id, json) -> {
+            try {
+                ShipTemplate template = GSON.fromJson(json, ShipTemplate.class);
+                template.id = id.toString();
+
+                if (template.tier < 1 || template.tier > 4) {
+                    HostileSkies.LOGGER.error("Ship '{}' has invalid tier {} (must be 1-4), skipping", id, template.tier);
+                    return;
+                }
+                if (template.structure == null || template.structure.isEmpty()) {
+                    HostileSkies.LOGGER.error("Ship '{}' has no structure field, skipping", id);
+                    return;
+                }
+
+                loaded.put(id, template);
+                tiers.computeIfAbsent(template.tier, k -> new ArrayList<>()).add(template);
+                HostileSkies.LOGGER.info("Registered ship '{}': {}", id, template);
+            } catch (Exception e) {
+                HostileSkies.LOGGER.error("Failed to parse ship config '{}'", id, e);
             }
-            ShipTemplate template = GSON.fromJson(
-                    new InputStreamReader(stream, StandardCharsets.UTF_8),
-                    ShipTemplate.class);
-            template.id = id;
+        });
 
-            ships.put(id, template);
-            byTier.computeIfAbsent(template.tier, k -> new ArrayList<>()).add(template);
+        ships = loaded;
+        byTier = tiers;
+        HostileSkies.LOGGER.info("Loaded {} ship template(s)", ships.size());
+    }
 
-            HostileSkies.LOGGER.info("Registered ship '{}': {}", id, template);
-        } catch (Exception e) {
-            HostileSkies.LOGGER.error("Failed to load ship config '{}'", id, e);
+    public static ShipTemplate get(ResourceLocation id) {
+        ShipTemplate template = ships.get(id);
+        // Bare ids parse into the minecraft namespace, so fall back to Hostile Skies.
+        // Also covers save data from before ids were namespaced.
+        if (template == null && id.getNamespace().equals(ResourceLocation.DEFAULT_NAMESPACE)) {
+            template = ships.get(ResourceLocation.fromNamespaceAndPath(HostileSkies.MODID, id.getPath()));
         }
+        return template;
     }
 
     public static ShipTemplate get(String id) {
-        return ships.get(id);
+        ResourceLocation parsed = ResourceLocation.tryParse(id);
+        return parsed == null ? null : get(parsed);
     }
 
     public static List<ShipTemplate> getForTier(int tier) {
@@ -65,7 +88,7 @@ public class ShipRegistry {
     }
 
     /** All registered ship IDs, for command tab completion. */
-    public static Collection<String> getAllIds() {
+    public static Collection<ResourceLocation> getAllIds() {
         return ships.keySet();
     }
 

@@ -1,7 +1,6 @@
 package dev.thebluetaco.hostileskies.command;
 
 import com.mojang.brigadier.arguments.IntegerArgumentType;
-import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
@@ -22,13 +21,9 @@ import dev.thebluetaco.hostileskies.ship.ShipRegistry;
 import dev.thebluetaco.hostileskies.ship.ShipTemplate;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.ResourceLocationArgument;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderGetter;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtAccounter;
-import net.minecraft.nbt.NbtIo;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -49,24 +44,20 @@ import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Quaterniond;
 
-import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.stream.Collectors;
 import java.util.List;
-import java.util.Map;
 
 public class SpawnRaidCommand {
 
-    private static final Map<String, StructureTemplate> templateCache = new HashMap<>();
-
     private static final SuggestionProvider<CommandSourceStack> SHIP_SUGGESTIONS =
-            (ctx, builder) -> SharedSuggestionProvider.suggest(ShipRegistry.getAllIds(), builder);
+            (ctx, builder) -> SharedSuggestionProvider.suggestResource(ShipRegistry.getAllIds(), builder);
 
     public static void register(LiteralArgumentBuilder<CommandSourceStack> root) {
         root.then(Commands.literal("spawnraid")
                 .requires(src -> src.hasPermission(2))
                 .executes(SpawnRaidCommand::executeRandom)
-                .then(Commands.argument("ship", StringArgumentType.word())
+                .then(Commands.argument("ship", ResourceLocationArgument.id())
                         .suggests(SHIP_SUGGESTIONS)
                         .executes(SpawnRaidCommand::executeNamed)
                         .then(Commands.argument("omen", IntegerArgumentType.integer(0, 3))
@@ -79,6 +70,21 @@ public class SpawnRaidCommand {
                     ctx.getSource().sendSuccess(() ->
                             Component.literal("Stopped " + count + " active raid(s)"), true);
                     return count;
+                }));
+
+        root.then(Commands.literal("ships")
+                .requires(src -> src.hasPermission(2))
+                .executes(ctx -> {
+                    var ids = ShipRegistry.getAllIds();
+                    if (ids.isEmpty()) {
+                        ctx.getSource().sendFailure(Component.literal("No ships loaded"));
+                        return 0;
+                    }
+                    String list = ids.stream().map(ResourceLocation::toString)
+                            .collect(Collectors.joining(", "));
+                    ctx.getSource().sendSuccess(() ->
+                            Component.literal("Loaded ships (" + ids.size() + "): " + list), false);
+                    return ids.size();
                 }));
     }
 
@@ -94,7 +100,7 @@ public class SpawnRaidCommand {
     }
 
     private static int executeNamed(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
-        String shipId = StringArgumentType.getString(ctx, "ship");
+        ResourceLocation shipId = ResourceLocationArgument.getId(ctx, "ship");
         ShipTemplate ship = ShipRegistry.get(shipId);
         if (ship == null) {
             ctx.getSource().sendFailure(Component.literal("Unknown ship: " + shipId));
@@ -104,7 +110,7 @@ public class SpawnRaidCommand {
     }
 
     private static int executeNamedWithOmen(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
-        String shipId = StringArgumentType.getString(ctx, "ship");
+        ResourceLocation shipId = ResourceLocationArgument.getId(ctx, "ship");
         ShipTemplate ship = ShipRegistry.get(shipId);
         if (ship == null) {
             ctx.getSource().sendFailure(Component.literal("Unknown ship: " + shipId));
@@ -143,10 +149,10 @@ public class SpawnRaidCommand {
      * Used by both /hostileskies spawnraid and the automatic spawn system. */
     public static boolean spawnShipAt(ServerLevel level, Vec3 patrolCenter,
                                        Vec3 lookDir, ShipTemplate ship, int badOmenLevel) {
-        HolderGetter<Block> blockLookup = level.holderLookup(Registries.BLOCK);
-        StructureTemplate template = loadTemplate(ship.structure, blockLookup);
+        StructureTemplate template = level.getStructureManager()
+                .get(ship.getStructureId()).orElse(null);
         if (template == null) {
-            HostileSkies.LOGGER.error("Failed to load structure: {}", ship.structure);
+            HostileSkies.LOGGER.error("Structure not found: {}", ship.getStructureId());
             return false;
         }
 
@@ -214,33 +220,6 @@ public class SpawnRaidCommand {
                 ship.name, (int) spawnX, (int) spawnY, (int) spawnZ,
                 (int) patrolCenter.x, (int) patrolCenter.z);
         return true;
-    }
-
-    // Structure loading
-
-    private static StructureTemplate loadTemplate(String name, HolderGetter<Block> blockLookup) {
-        if (templateCache.containsKey(name)) {
-            return templateCache.get(name);
-        }
-
-        String path = "/data/" + HostileSkies.MODID + "/structures/" + name + ".nbt";
-        try (InputStream stream = SpawnRaidCommand.class.getResourceAsStream(path)) {
-            if (stream == null) {
-                HostileSkies.LOGGER.error("Structure file not found: {}", path);
-                return null;
-            }
-
-            CompoundTag nbt = NbtIo.readCompressed(stream, NbtAccounter.unlimitedHeap());
-            StructureTemplate template = new StructureTemplate();
-            template.load(blockLookup, nbt);
-
-            templateCache.put(name, template);
-            HostileSkies.LOGGER.info("Loaded structure '{}' (size: {})", name, template.getSize());
-            return template;
-        } catch (Exception e) {
-            HostileSkies.LOGGER.error("Failed to load structure '{}'", name, e);
-            return null;
-        }
     }
 
     // Structure placement

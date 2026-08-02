@@ -32,6 +32,7 @@ import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.AddReloadListenerEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
@@ -57,12 +58,16 @@ public class HostileSkies {
         NeoForge.EVENT_BUS.register(this);
         ModEntityTypes.register(modEventBus);
         ModItems.register(modEventBus);
-        ShipRegistry.init();
         modContainer.registerConfig(ModConfig.Type.COMMON, RaidConfig.SPEC);
         if (FMLEnvironment.dist.isClient()) {
             modContainer.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
         }
         LOGGER.info("Create Hostile Skies loading");
+    }
+
+    @SubscribeEvent
+    public void onAddReloadListeners(AddReloadListenerEvent event) {
+        event.addListener(new ShipRegistry());
     }
 
     @SubscribeEvent

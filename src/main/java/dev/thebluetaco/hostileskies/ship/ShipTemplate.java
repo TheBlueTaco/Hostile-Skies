@@ -1,5 +1,6 @@
 package dev.thebluetaco.hostileskies.ship;
 
+import dev.thebluetaco.hostileskies.HostileSkies;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.core.BlockPos;
@@ -128,6 +129,13 @@ public class ShipTemplate {
         public String captainTable = "";
         /** Structure [x, y, z] of the captain's chest container. */
         public int[] captainChest = null;
+    }
+
+    /** Resolves the structure field into a ResourceLocation. Bare names inherit the ship's namespace. */
+    public ResourceLocation getStructureId() {
+        if (structure.contains(":")) return ResourceLocation.parse(structure);
+        String namespace = id.contains(":") ? id.substring(0, id.indexOf(':')) : HostileSkies.MODID;
+        return ResourceLocation.fromNamespaceAndPath(namespace, structure);
     }
 
     /** Resolves the loot table string into a ResourceKey. Falls back to pillager outpost loot. */
