@@ -109,7 +109,7 @@ public class HostileSkies {
                 }));
 
         event.getDispatcher().register(root);
-        LOGGER.info("Registered /hostileskies commands (spawnraid, stopraid, shipnav, raidlog, killcount)");
+        LOGGER.info("Registered /hostileskies commands (spawnraid, stopraid, shipnav, raidlog, killcount, ships)");
     }
 
     @SubscribeEvent
