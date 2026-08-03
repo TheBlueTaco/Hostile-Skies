@@ -30,7 +30,7 @@
   },
 
   "loot": {
-    "containerTable": "hostile_skies:chests/tier1_ship"
+    "containerTable": "example_namespace:chests/tier1_example"
   },
 
   "notes": [

@@ -1,0 +1,31 @@
+{
+  "type": "minecraft:chest",
+  "pools": [
+    {
+      "rolls": { "type": "minecraft:uniform", "min": 4.0, "max": 6.0 },
+      "entries": [
+        {
+          "type": "minecraft:item", "name": "minecraft:poisonous_potato", "weight": 10,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 2.0, "max": 5.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "minecraft:dead_bush", "weight": 8,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 2.0, "max": 5.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "minecraft:turtle_egg", "weight": 8,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 2.0, "max": 5.0 } }]
+        }
+      ]
+    },
+    {
+      "rolls": 1.0,
+      "entries": [
+        { "type": "minecraft:empty", "weight": 12 },
+        { "type": "minecraft:item", "name": "create:goggles", "weight": 1 },
+        { "type": "minecraft:item", "name": "aeronautics:aviators_goggles", "weight": 1 },
+        { "type": "minecraft:item", "name": "create:wrench", "weight": 2 }
+      ]
+    }
+  ]
+}

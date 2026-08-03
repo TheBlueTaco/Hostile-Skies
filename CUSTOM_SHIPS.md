@@ -21,8 +21,11 @@ my_datapack/
         ├── hostile_skies/
         │   └── ships/
         │       └── my_ship.json       <-- ship template
-        └── structure/
-            └── my_ship.nbt            <-- structure NBT
+        ├── structure/
+        │   └── my_ship.nbt            <-- structure NBT
+        └── loot_table/                <-- optional path if you want to add custom loot tables
+            └── chests
+                └── my_table.json
 ```
 
 The JSON lives under `data/<namespace>/hostile_skies/ships/`. The structure NBT lives under `data/<namespace>/structure/` (vanilla's standard structure folder).
