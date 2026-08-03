@@ -1,15 +1,17 @@
 # Adding Custom Ships to Hostile Skies
 
 ## WARNING!
-**Currently, only balloon based ships that turn with a rudder are supported.** This **WILL** change, but it may take some time.  
+**Currently, only balloon based ships that turn using a rudder are supported.** This **WILL** change, but it may take some time.  
 <br/>
-<br/>
+
 Any datapack (or mod) can add airship encounters to Create: Hostile Skies. A ship consists of two files:
 
 1. **A JSON template** defining the ship's identity, controls, crew, and tuning.
 2. **A structure NBT file** saved with a Minecraft structure block.
 
-Both go into a standard datapack folder. Once loaded, `/reload` picks up changes and `/hostileskies ships` lists everything registered.
+Both go into a standard datapack folder. Once loaded, `/reload` picks up changes and `/hostileskies ships` lists everything registered.  
+
+I included an example datapack in `docs/` for you to use alongside this guide.
 
 ## Datapack layout
 
@@ -37,10 +39,10 @@ unless you're referencing a structure from a different namespace.
 
 Use Minecraft's **structure block** to save the ship. In my testing, Create's Schematic and Quill created problems. A few conventions:
 
-- **Save the ship facing west** The ship's bow must face west, toward negative X. If you save it facing another direction, it may spawn facing the wrong direction in the raid.
+- **Save the ship facing west.** The ship's bow must face west, toward negative X. If you save it facing another direction, it may spawn facing the wrong direction in the raid.
 This can be fixed by either saving it and placing it facing west, or setting `navigation.spawnYawOffset` to `180` (or 90 / 270 depending on the angle) in the JSON.
-- **Careful with chunk borders** This problem SHOULD be solved but Structures that span two or more chunks might only have part of it appear in-game. If this happens let me know.
-- **Include all mechanical components.** Everything the ship needs to function must be inside the structure bounds. (Components like bearings and levers)
+- **Careful with chunk borders.** This problem SHOULD be solved but Structures that span two or more chunks might only have part of it appear in-game. If this happens let me know.
+- **Don't add fuel.** Hostile Skies automatically refuels portable engines and blaze burners on ships while it is in an active raid. Do not add any fuel to them unless you want it to be looted.
 
 ### Screenshot:
 
