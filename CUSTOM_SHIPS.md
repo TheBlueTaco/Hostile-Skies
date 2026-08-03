@@ -41,7 +41,7 @@ This can be fixed by either saving it and placing it facing west, or setting `na
 
 ### Screenshot:
 
-<img src="docs/structure_example.png" alt="Structure block bounding box around a ship." width="60%">  
+<img src="docs/structure_example.png" alt="Structure block bounding box around a ship." width="50%">  
 
 Note the position of the lines on the bottom left of the box, they should look like that when you save your ship.
 
@@ -112,7 +112,7 @@ Basic example:
 |-------|------|---------|--------------------------------------------------------------------------------------------------------------------------------------------|
 | `name` | string | `"Unknown Ship"` | Display name shown in logs and diagnostics.                                                                                                |
 | `tier` | int | `1` | Difficulty tier. T1 ships spawn from the start while higher tiers unlock at higher captain kills. Tiers must be between 1 and 4 currently. |
-| `structure` | string | *required* | Name of the structure NBT file. Bare names inherit your datapack's namespace.                                                              |
+| `structure` | string | *required* | Name of the structure NBT file (without the extension). Bare names inherit your datapack's namespace.                                                             |
 
 **Controls**
 
