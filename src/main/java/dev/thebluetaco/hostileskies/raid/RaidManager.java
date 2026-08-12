@@ -73,6 +73,20 @@ public class RaidManager {
     private static final int CREW_SETTLE_TICKS = 10;
     private static final int PATROL_TICKS = 7 * 60 * 20;
     private static final int DEPART_TICKS = 30 * 20;
+    private static final int BORED_SECOND_BUMP_TICKS = 10 * 20;
+    private static final int EMERGENCY_BELL_INTERVAL = 20;
+    private static final int VENT_MIN_INTERVAL = 4 * 20;
+    private static final int VENT_MAX_INTERVAL = 8 * 20;
+    private static final int EMERGENCY_PLACEHOLDER_TAIL = 100;
+
+    private static final String BORED_HORN_SOUND = "minecraft:item.goat_horn.sound.7";
+    private static final String EMERGENCY_START_SOUND = "simulated:block.physics_assembler.assemble";
+    private static final String EMERGENCY_BELL_SOUND = "create:haunted_bell_use";
+    private static final String EMERGENCY_VENT_SOUND = "aeronautics:block.steam_vent.open";
+
+    private static boolean isDeparting(RaidPhase phase) {
+        return phase == RaidPhase.DEPARTING_BORED || phase == RaidPhase.DEPARTING_EMERGENCY;
+    }
 
     // Fuel
     private static final int FUEL_TOPOFF_INTERVAL = 1200;
@@ -165,7 +179,7 @@ public class RaidManager {
                     for (TrackedRaid raid : activeRaids) {
                         if (raid.subLevelId.equals(raidId)) {
                             if (raid.phase == RaidPhase.PATROLLING || raid.phase == RaidPhase.MERCY) {
-                                transition(raid, RaidPhase.DEPARTING, "captain killed. Claim window open");
+                                beginEmergencyDeparture(raid);
                             }
                             return;
                         }
@@ -364,16 +378,16 @@ public class RaidManager {
 
             // Respawn stale/missing chain entity after chunk unload cycles
             if (raid.crewSpawned && !raid.steeringWheelPositions.isEmpty()
-                    && raid.phase != RaidPhase.CAPTURED && raid.phase != RaidPhase.DEPARTING
+                    && raid.phase != RaidPhase.CAPTURED && !isDeparting(raid.phase)
                     && (raid.chainEntity == null || raid.chainEntity.isRemoved())) {
                 HostileSkies.LOGGER.info("Chain entity stale/missing. Respawning..");
                 spawnChainEntity(raid, ssl);
             }
 
             // Evicted raids depart as soon as they load
-            if (raid.evicted && raid.phase != RaidPhase.DEPARTING && raid.phase != RaidPhase.CAPTURED) {
+            if (raid.evicted && !isDeparting(raid.phase) && raid.phase != RaidPhase.CAPTURED) {
                 if (raid.phase == RaidPhase.MERCY) restoreNormalControls(raid, ssl);
-                transition(raid, RaidPhase.DEPARTING, "evicted for capacity");
+                beginBoredDeparture(raid, ssl, "evicted for capacity");
             }
 
             int ticksAlive = currentTick - raid.spawnTick;
@@ -383,8 +397,15 @@ public class RaidManager {
                 case APPROACHING  -> tickApproach(raid, ssl);
                 case PATROLLING   -> tickPatrol(raid, ssl);
                 case MERCY        -> tickMercy(raid, ssl);
-                case DEPARTING    -> {
-                    if (tickDepart(raid, ssl)) {
+                case DEPARTING_BORED -> {
+                    if (tickDepartBored(raid, ssl)) {
+                        despawn(raid, subLevel);
+                        applyEndCooldowns(raid, server);
+                        return true;
+                    }
+                }
+                case DEPARTING_EMERGENCY -> {
+                    if (tickDepartEmergency(raid, ssl)) {
                         despawn(raid, subLevel);
                         applyEndCooldowns(raid, server);
                         return true;
@@ -397,7 +418,7 @@ public class RaidManager {
                 }
             }
 
-            if (raid.phase != RaidPhase.DEPARTING && raid.phase != RaidPhase.CAPTURED) {
+            if (!isDeparting(raid.phase) && raid.phase != RaidPhase.CAPTURED) {
                 tickFuel(raid, ssl, ticksAlive);
             }
 
@@ -636,7 +657,9 @@ public class RaidManager {
                 tag.getInt("badOmenLevel")
         );
 
-        raid.phase = RaidPhase.valueOf(tag.getString("phase"));
+        String phaseName = tag.getString("phase");
+        if ("DEPARTING".equals(phaseName)) phaseName = "DEPARTING_BORED"; // 0.1.5 and older saves still work
+        raid.phase = RaidPhase.valueOf(phaseName);
         raid.patrolTicksRemaining = tag.getInt("patrolTicksRemaining");
         raid.controlsApplied = tag.getBoolean("controlsApplied");
         raid.balloonFilled = tag.getBoolean("balloonFilled");
@@ -1183,7 +1206,7 @@ public class RaidManager {
             raid.patrolTicksRemaining--;
             if (raid.patrolTicksRemaining <= 0) {
                 raid.navigator.straightenWheel(sl, "depart-straighten");
-                transition(raid, RaidPhase.DEPARTING, "patrol expired");
+                beginBoredDeparture(raid, sl, "patrol expired");
                 return;
             }
         }
@@ -1291,21 +1314,96 @@ public class RaidManager {
 
     // Departing
 
-    private static boolean tickDepart(TrackedRaid raid, ServerSubLevel sl) {
-        raid.departTicks++;
+    /** Enters bored departure. Sounds horn, first throttle bump, phase transition. */
+    private static void beginBoredDeparture(TrackedRaid raid, ServerSubLevel sl, String reason) {
+        playShipSound(raid.level, sl, BORED_HORN_SOUND,
+                (float) (RaidConfig.hornSoundRange.get() / 16.0), 0.7F);
+        bumpThrottle(raid, 1);
+        transition(raid, RaidPhase.DEPARTING_BORED, reason);
+    }
+
+    /** Enters emergency departure. Straighten course, restore mercy controls, start alarm. */
+    private static void beginEmergencyDeparture(TrackedRaid raid) {
+        ServerSubLevelContainer container = SubLevelContainer.getContainer(raid.level);
+        SubLevel sl = container != null ? container.getSubLevel(raid.subLevelId) : null;
+        if (sl instanceof ServerSubLevel ssl) {
+            if (raid.phase == RaidPhase.MERCY) restoreNormalControls(raid, ssl);
+            raid.navigator.straightenWheel(ssl, "emergency-straighten");
+            playShipSound(raid.level, ssl, EMERGENCY_START_SOUND,
+                    (float) (RaidConfig.hornSoundRange.get() / 16.0), 0.5F);
+        }
+        transition(raid, RaidPhase.DEPARTING_EMERGENCY, "captain killed. Claim window open");
+    }
+
+    /** Raises the throttle base override by steps above the ship's normal signal (capped at 15). */
+    private static void bumpThrottle(TrackedRaid raid, int steps) {
+        ShipTemplate.ControlGroup throttle = raid.ship.controls.get("throttle");
+        if (throttle == null) return;
+        int target = Math.min(15, throttle.signal + steps);
+        raid.navigator.setThrottleBaseOverride(target);
+        HostileSkies.debug("[depart] throttle override -> {} (+{})", target, steps);
+    }
+
+    /**
+     * Bored: Fly away from the patrol center at raised throttle. Second throttle
+     * bump at 10s for a smooth ramp. The 30s timer pauses while a player is aboard. */
+    private static boolean tickDepartBored(TrackedRaid raid, ServerSubLevel sl) {
+        boolean aboard = isPlayerAboard(raid.level, sl);
+        if (aboard) raid.engaged = true;
+
+        if (!aboard) raid.departTicks++;
+
+        if (raid.departTicks == BORED_SECOND_BUMP_TICKS) {
+            bumpThrottle(raid, 2);
+        }
 
         if (raid.departTicks % 100 == 0) {
             debugMessage(raid, "Departing: " + (raid.departTicks / 20) + "s / " + (DEPART_TICKS / 20) + "s");
         }
 
-        raid.navigator.tickDepart(sl);
+        raid.navigator.tickDepartBored(sl);
 
-        if (raid.departTicks >= DEPART_TICKS) {
-            boolean aboard = isPlayerAboard(raid.level, sl);
-            if (aboard) raid.engaged = true;
-            return !aboard;
+        return raid.departTicks >= DEPART_TICKS && !aboard;
+    }
+
+    /**
+     * Emergency: Straight course, alarm sequence, then destruction. The delay
+     * before destruction is per-ship (departure.emergencyDelayTicks). This is the
+     * player's window to escape or claim the helm. Claiming cancels via the
+     * CAPTURED transition. No pause for players aboard. */
+    private static boolean tickDepartEmergency(TrackedRaid raid, ServerSubLevel sl) {
+        raid.departTicks++;
+
+        // Alarm bell, from start until removal
+        if (raid.departTicks % EMERGENCY_BELL_INTERVAL == 0) {
+            playShipSound(raid.level, sl, EMERGENCY_BELL_SOUND, 4.0F, 0.5F);
         }
-        return false;
+
+        // Steam vents at random 4-8s intervals, random 0.5-0.7 pitch
+        if (raid.nextVentSoundTick < 0) {
+            raid.nextVentSoundTick = raid.departTicks
+                    + VENT_MIN_INTERVAL + raid.level.random.nextInt(VENT_MAX_INTERVAL - VENT_MIN_INTERVAL + 1);
+        }
+        if (raid.departTicks >= raid.nextVentSoundTick) {
+            float pitch = 0.5F + raid.level.random.nextFloat() * 0.2F;
+            playShipSound(raid.level, sl, EMERGENCY_VENT_SOUND, 3.0F, pitch);
+            raid.nextVentSoundTick = raid.departTicks
+                    + VENT_MIN_INTERVAL + raid.level.random.nextInt(VENT_MAX_INTERVAL - VENT_MIN_INTERVAL + 1);
+        }
+
+        raid.navigator.tickDepartEmergency(sl);
+
+        // TODO destruction chain (next stage).
+        return raid.departTicks >= raid.ship.departure.emergencyDelayTicks + EMERGENCY_PLACEHOLDER_TAIL;
+    }
+
+    /** Plays a sound at the ship's current world-space center (moving source). */
+    private static void playShipSound(ServerLevel level, ServerSubLevel sl,
+                                      String soundId, float volume, float pitch) {
+        Pose3d pose = sl.logicalPose();
+        SoundEvent sound = SoundEvent.createVariableRangeEvent(ResourceLocation.parse(soundId));
+        level.playSound(null, pose.position().x(), pose.position().y(), pose.position().z(),
+                sound, SoundSource.HOSTILE, volume, pitch);
     }
 
     // Fuel
@@ -1507,6 +1605,8 @@ public class RaidManager {
         int crewSpawnedTick = 0;
 
         int departTicks = 0;
+        /** Next departTicks value at which the emergency vent sound plays; -1 = unscheduled. */
+        int nextVentSoundTick = -1;
 
         TrackedRaid(ServerLevel level, UUID subLevelId, ShipTemplate ship,
                     Vec3 spawnOrigin, Vec3 patrolCenter,

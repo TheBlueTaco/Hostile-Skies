@@ -12,8 +12,10 @@ public enum RaidPhase {
     PATROLLING,
     /** Player died aboard — ship slows to half speed, mercy timer active. */
     MERCY,
-    /** Patrol expired or mercy expired — ship flies away from the area. */
-    DEPARTING,
+    /** Patrol expired or evicted. Ship turns away, throttles up, and leaves. */
+    DEPARTING_BORED,
+    /** Captain killed, unclaimed. Alarm sounds, straight course, destruction imminent. */
+    DEPARTING_EMERGENCY,
     /** Player claimed the ship — removed from raid tracking entirely. */
     CAPTURED
 }

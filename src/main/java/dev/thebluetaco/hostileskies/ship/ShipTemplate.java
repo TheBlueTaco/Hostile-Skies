@@ -25,6 +25,7 @@ public class ShipTemplate {
     public Spawning spawning = new Spawning();
     public Crew crew = new Crew();
     public Loot loot = new Loot();
+    public Departure departure = new Departure();
 
     /**
      * Tuning for the ShipNavigator. Defaults are validated on the Karve's
@@ -109,6 +110,17 @@ public class ShipTemplate {
         /** How far above the terrain the ship will spawn*/
         public int terrainClearance = 40;
         public int minAltitudeAboveSea = 60;
+    }
+
+    /** Departure behavior tuning. */
+    public static class Departure {
+        /**
+         * (Captain is killed, ship is unclaimed)
+         * Ticks between the emergency alarm starting and the destruction sequence beginning.
+         * This is the player's window to escape or reach the helm. Scale it to the ship. Claiming the helm at
+         * any point cancels the sequence.
+         */
+        public int emergencyDelayTicks = 200;
     }
 
     public static class Crew {

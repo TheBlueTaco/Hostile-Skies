@@ -118,8 +118,11 @@ public class ShipNavigator {
      * The tangent spawn geometry shares the same handedness */
     private double orbitSign = 1.0;
 
-    /** Captured heading (twist convention, radians) held during DEPARTING. */
+    /** Captured heading (twist convention, radians) held during emergency departure. */
     private Double departHeadingRad = null;
+    /** Far-away steering target for bored departure; computed on first bored tick. */
+    private Vec3 boredAwayTarget = null;
+    private static final double AWAY_TARGET_DISTANCE = 10_000.0;
 
     // Motion estimation
 
@@ -239,9 +242,9 @@ public class ShipNavigator {
     }
 
     /**
-     * Departure: hold the heading the ship had when departure began. Terrain
-     * avoidance stays active so a departing ship doesn't faceplant into a mountain. */
-    public void tickDepart(ServerSubLevel sl) {
+     * Emergency departure: Hold the heading the ship had when departure began.
+     * Terrain avoidance stays active so a departing ship doesn't faceplant into a mountain. */
+    public void tickDepartEmergency(ServerSubLevel sl) {
         if (diagMode != DiagMode.OFF) { runDiagnostics(sl); return; }
         NavTick t = beginTick(sl);
         if (handleUnstick(sl, t)) return;
@@ -252,6 +255,33 @@ public class ShipNavigator {
         }
         if (ticksActive % ship.navigation.steerCadenceTicks == 0) {
             double errDeg = wrapDegrees(Math.toDegrees(departHeadingRad - t.twistYawRad));
+            applySteeringLaw(sl, errDeg);
+        }
+    }
+
+    /**
+     * Bored departure: Steer toward a far point directly away from the patrol
+     * center, computed once on the first tick. Reuses the carrot bearing math */
+    public void tickDepartBored(ServerSubLevel sl) {
+        if (diagMode != DiagMode.OFF) { runDiagnostics(sl); return; }
+        NavTick t = beginTick(sl);
+        if (handleUnstick(sl, t)) return;
+        runAvoidanceAndLevers(sl, t);
+
+        if (boredAwayTarget == null) {
+            double dx = t.x - patrolCenter.x;
+            double dz = t.z - patrolCenter.z;
+            double len = Math.sqrt(dx * dx + dz * dz);
+            if (len < 1e-3) { dx = 1.0; dz = 0.0; len = 1.0; }
+            boredAwayTarget = new Vec3(
+                    t.x + dx / len * AWAY_TARGET_DISTANCE, 0.0,
+                    t.z + dz / len * AWAY_TARGET_DISTANCE);
+            HostileSkies.debug("[Nav] bored departure target: ({}, {})",
+                    String.format("%.0f", boredAwayTarget.x), String.format("%.0f", boredAwayTarget.z));
+        }
+        if (ticksActive % ship.navigation.steerCadenceTicks == 0) {
+            double errDeg = -localBearingDegrees(t.q,
+                    boredAwayTarget.x - t.x, 0.0, boredAwayTarget.z - t.z);
             applySteeringLaw(sl, errDeg);
         }
     }
