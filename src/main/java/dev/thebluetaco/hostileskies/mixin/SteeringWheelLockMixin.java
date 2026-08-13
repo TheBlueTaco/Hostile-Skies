@@ -56,7 +56,7 @@ public class SteeringWheelLockMixin {
         if (player.level().isClientSide) {
             player.playSound(SoundEvents.CHAIN_PLACE, 1.0f, 0.8f);
             player.displayClientMessage(
-                    Component.literal("\u00a75\u00a7l\u00a75Helm is locked! \u00a7dKill the Captain!"),
+                    Component.literal("\u00a75\u00a7l\u00a75Helm is locked! \u00a7dBring the Captain's Orders!"),
                     true);
         }
         cir.setReturnValue(InteractionResult.SUCCESS);

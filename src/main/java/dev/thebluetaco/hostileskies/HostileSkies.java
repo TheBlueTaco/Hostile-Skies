@@ -213,7 +213,7 @@ public class HostileSkies {
         } else {
             if (player instanceof ServerPlayer serverPlayer) {
                 serverPlayer.displayClientMessage(
-                        Component.literal("\u00a75\u00a7l\u2618 \u00a75Helm is locked! \u00a7dKill the Captain!"),
+                        Component.literal("\u00a75\u00a7l\u2618 \u00a75Helm is locked! \u00a7dBring the Captain's Orders!"),
                         true);
             }
         }

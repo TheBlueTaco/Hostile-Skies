@@ -115,6 +115,11 @@ public class ShipTemplate {
     /** Departure behavior tuning. */
     public static class Departure {
         /**
+         * # of ticks the bored departure lasts before clean removal. The timer
+         * pauses while a player is aboard. Default 900 = 45 seconds.
+         */
+        public int boredDepartTicks = 900;
+        /**
          * (Captain is killed, ship is unclaimed)
          * Ticks between the emergency alarm starting and the destruction sequence beginning.
          * This is the player's window to escape or reach the helm. Scale it to the ship. Claiming the helm at

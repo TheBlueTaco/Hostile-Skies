@@ -144,6 +144,7 @@ public class ShipNavigator {
     private int lastAppliedThrottle = Integer.MIN_VALUE;
     /** Set by RaidManager during MERCY; -1 = none. */
     private int throttleBaseOverride = -1;
+    private int liftBaseOverride = -1;
 
     // Stuck recovery
 
@@ -181,6 +182,10 @@ public class ShipNavigator {
     }
 
     /** Called by RaidManager when mercy throttle is applied or restored. */
+    public void setLiftBaseOverride(int signal) {
+        this.liftBaseOverride = signal;
+    }
+
     public void setThrottleBaseOverride(int signal) {
         this.throttleBaseOverride = signal;
         this.lastAppliedThrottle = Integer.MIN_VALUE;
@@ -502,10 +507,11 @@ public class ShipNavigator {
 
         ShipTemplate.ControlGroup lift = ship.controls.get(LIFT_GROUP);
         if (lift != null) {
+            int base = liftBaseOverride >= 0 ? liftBaseOverride : lift.signal;
             int boost = unstickTicksLeft > 0
                     ? (unstickClimb ? nav.unstickLiftBoost : -nav.unstickLiftBoost)
                     : liftBoost;
-            int target = Math.min(15, Math.max(0, lift.signal + boost));
+            int target = Math.min(15, Math.max(0, base + boost));
             if (target != lastAppliedLift) {
                 applyGroupSignal(sl, lift, target, LIFT_GROUP);
                 lastAppliedLift = target;
@@ -521,7 +527,8 @@ public class ShipNavigator {
                 target = Math.min(base, nav.unstickThrottleSignal);
             } else if (nav.avoidThrottleSignal >= 0 && throttleReduced) {
                 target = Math.min(base, nav.avoidThrottleSignal);
-            } else if (nav.avoidThrottleSignal >= 0 || lastAppliedThrottle != Integer.MIN_VALUE) {
+            } else if (nav.avoidThrottleSignal >= 0 || lastAppliedThrottle != Integer.MIN_VALUE
+                    || throttleBaseOverride >= 0) {
                 target = base;
             } else {
                 return;

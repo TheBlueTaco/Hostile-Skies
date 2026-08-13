@@ -28,6 +28,10 @@
     "minAltitudeAboveSea": 60
   },
 
+  "departure": {
+    "boredDepartTicks": 2000
+  },
+
   "crew": {
     "captain": 1,
     "pillagers": 5,
