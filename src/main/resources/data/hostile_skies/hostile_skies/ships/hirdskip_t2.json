@@ -29,7 +29,13 @@
   },
 
   "departure": {
-    "boredDepartTicks": 2000
+    "boredDepartTicks": 2000,
+    "emergencyDelayTicks": 200,
+    "detonationCount": 12,
+    "detonationMinInterval": 10,
+    "detonationMaxInterval": 60,
+    "detonationRadius": 4.5,
+    "debrisPerDetonation": 15
   },
 
   "crew": {

@@ -126,6 +126,13 @@ public class ShipTemplate {
          * any point cancels the sequence.
          */
         public int emergencyDelayTicks = 200;
+        /** Number of explosion points spread through the ship. They detonate one at a time. */
+        public int detonationCount = 12;
+        public int detonationMinInterval = 20;
+        public int detonationMaxInterval = 120;
+        public int debrisPerDetonation = 4;
+        /** Radius of each detonation in blocks. Controls how many blocks are set to air and considered debris candidates */
+        public float detonationRadius = 3.5F;
     }
 
     public static class Crew {

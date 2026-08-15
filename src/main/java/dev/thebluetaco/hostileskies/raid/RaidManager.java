@@ -71,14 +71,13 @@ public class RaidManager {
     private static final int MAX_INIT_TICKS = 200;
     private static final int INIT_SETTLE_TICKS = 3;
     private static final int CREW_SETTLE_TICKS = 10;
-    private static final int PATROL_TICKS = 10 * 60 * 20;
+    private static final int PATROL_TICKS = 14 * 60 * 20;
     private static final int BORED_SECOND_BUMP_TICKS = 10 * 20;
     private static final int EMERGENCY_BELL_INTERVAL = 20;
     private static final int VENT_MIN_INTERVAL = 3 * 20;
     private static final int VENT_MAX_INTERVAL = 8 * 20;
     private static final int RATTLE_MIN_INTERVAL = 3 * 20;
     private static final int RATTLE_MAX_INTERVAL = 8 * 20;
-    private static final int EMERGENCY_PLACEHOLDER_TAIL = 100;
 
     // Might change these sounds out for custom ones in the future
     private static final String BORED_HORN_SOUND = "minecraft:item.goat_horn.sound.7";
@@ -259,6 +258,7 @@ public class RaidManager {
     public static void onServerStopping(MinecraftServer server) {
         syncToSavedData(server);
         HostileSkies.LOGGER.info("Server stopping... Saved {} active raid(s)", activeRaids.size());
+        DestructionSequence.clearAllDebris();
         activeRaids.clear();
         lockedWheelPositions.clear();
         pendingRestore.clear();
@@ -310,6 +310,11 @@ public class RaidManager {
     public static void tick(MinecraftServer server) {
         if (!restored) {
             tickRestore(server);
+        }
+
+        // Clean up expired debris
+        for (ServerLevel level : server.getAllLevels()) {
+            DestructionSequence.tickDebrisCleanup(level);
         }
 
         if (activeRaids.isEmpty()) return;
@@ -1391,38 +1396,46 @@ public class RaidManager {
     private static boolean tickDepartEmergency(TrackedRaid raid, ServerSubLevel sl) {
         raid.departTicks++;
 
-        // Alarm bell, from start until removal
+        // Alarm bell every second
         if (raid.departTicks % EMERGENCY_BELL_INTERVAL == 0) {
-            playShipSound(raid.level, sl, EMERGENCY_BELL_SOUND, 4.0F, 0.5F);
+            playShipSound(raid.level, sl, EMERGENCY_BELL_SOUND, 3.0F, 0.5F);
+        }
+        // Steam vents and rattling at random intervals
+        raid.nextVentSoundTick = tickRandomSound(raid, sl, EMERGENCY_VENT_SOUND,
+                raid.nextVentSoundTick, VENT_MIN_INTERVAL, VENT_MAX_INTERVAL);
+        raid.nextRattleSoundTick = tickRandomSound(raid, sl, "simulated:block.physics_assembler.assemble",
+                raid.nextRattleSoundTick, RATTLE_MIN_INTERVAL, RATTLE_MAX_INTERVAL);
+
+        // Stop the autopilot once the countdown is over. If Explosions are off, also cut lift and throttle
+        if (raid.departTicks < raid.ship.departure.emergencyDelayTicks) {
+            if ((raid.departTicks == raid.ship.departure.emergencyDelayTicks - 1) && (!RaidConfig.enableExplosions.get())) {
+                raid.navigator.setLiftBaseOverride(0);
+                raid.navigator.setThrottleBaseOverride(0);
+            }
+            raid.navigator.tickDepartEmergency(sl);
         }
 
-        // Steam vents at random 3-8s intervals, random 0.5-0.7 pitch
-        if (raid.nextVentSoundTick < 0) {
-            raid.nextVentSoundTick = raid.departTicks
-                    + VENT_MIN_INTERVAL + raid.level.random.nextInt(VENT_MAX_INTERVAL - VENT_MIN_INTERVAL + 1);
+        // After the countdown, start or tick the destruction chain
+        if (raid.departTicks >= raid.ship.departure.emergencyDelayTicks) {
+            if (!RaidConfig.enableExplosions.get()) {
+                // if explosions disabled just wait 20 seconds and despawn
+                return raid.departTicks >= raid.ship.departure.emergencyDelayTicks + 400;
+            }
+            if (raid.destructionSequence == null) {
+                raid.destructionSequence = new DestructionSequence(
+                        raid.level, raid.structureSize, raid.plotOffset);
+                raid.destructionSequence.ignite(
+                        raid.ship.departure.detonationCount,
+                        raid.ship.departure.detonationMinInterval,
+                        raid.ship.departure.detonationMaxInterval,
+                        raid.ship.departure.debrisPerDetonation,
+                        raid.ship.departure.detonationRadius);
+                HostileSkies.LOGGER.info("Emergency departure: destruction chain started for {}",
+                        raid.ship.name);
+            }
+            return raid.destructionSequence.tick(sl);
         }
-        if (raid.departTicks >= raid.nextVentSoundTick) {
-            float pitch = 0.5F + raid.level.random.nextFloat() * 0.2F;
-            playShipSound(raid.level, sl, EMERGENCY_VENT_SOUND, 3.0F, pitch);
-            raid.nextVentSoundTick = raid.departTicks
-                    + VENT_MIN_INTERVAL + raid.level.random.nextInt(VENT_MAX_INTERVAL - VENT_MIN_INTERVAL + 1);
-        }
-        // Rattling noises at random 3-8s intervals, random 0.5-0.7 pitch
-        if (raid.nextRattleSoundTick < 0) {
-            raid.nextRattleSoundTick = raid.departTicks
-                    + RATTLE_MIN_INTERVAL + raid.level.random.nextInt(RATTLE_MAX_INTERVAL - RATTLE_MIN_INTERVAL + 1);
-        }
-        if (raid.departTicks >= raid.nextRattleSoundTick) {
-            float pitch = 0.5F + raid.level.random.nextFloat() * 0.2F;
-            playShipSound(raid.level, sl, "simulated:block.physics_assembler.assemble", 3.0F, pitch);
-            raid.nextRattleSoundTick = raid.departTicks
-                    + RATTLE_MIN_INTERVAL + raid.level.random.nextInt(RATTLE_MAX_INTERVAL - RATTLE_MIN_INTERVAL + 1);
-        }
-
-        raid.navigator.tickDepartEmergency(sl);
-
-        // TODO destruction chain (next stage).
-        return raid.departTicks >= raid.ship.departure.emergencyDelayTicks + EMERGENCY_PLACEHOLDER_TAIL;
+        return false;
     }
 
     /** Broadcasts an action bar message to all players within range of the ship. */
@@ -1434,6 +1447,22 @@ public class RaidManager {
                 player.displayClientMessage(Component.literal(message), true);
             }
         }
+    }
+
+    /** Ticks a random sound that the ship plays during emergency departure. Returns the updated nextTick value. */
+    private static int tickRandomSound(TrackedRaid raid, ServerSubLevel sl, String soundId,
+                                       int nextTick, int minInterval, int maxInterval) {
+        if (nextTick < 0) {
+            return raid.departTicks + minInterval
+                    + raid.level.random.nextInt(maxInterval - minInterval + 1);
+        }
+        if (raid.departTicks >= nextTick) {
+            float pitch = 0.5F + raid.level.random.nextFloat() * 0.2F;
+            playShipSound(raid.level, sl, soundId, 3.0F, pitch);
+            return raid.departTicks + minInterval
+                    + raid.level.random.nextInt(maxInterval - minInterval + 1);
+        }
+        return nextTick;
     }
 
     /** Plays a sound at the ship's current world-space center (moving source). */
@@ -1647,6 +1676,8 @@ public class RaidManager {
         /** Next departTicks value at which the emergency vent sound plays; -1 = unscheduled. */
         int nextVentSoundTick = -1;
         int nextRattleSoundTick = -1;
+        /** Active destruction chain. Null until the delay window expires. */
+        DestructionSequence destructionSequence = null;
 
         TrackedRaid(ServerLevel level, UUID subLevelId, ShipTemplate ship,
                     Vec3 spawnOrigin, Vec3 patrolCenter,

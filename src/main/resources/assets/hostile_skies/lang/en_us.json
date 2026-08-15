@@ -15,6 +15,8 @@
   "hostile_skies.configuration.bad_omen.tooltip": "How Bad Omen affects raid difficulty and loot",
   "hostile_skies.configuration.captain_kills": "Captain Kill Tracking",
   "hostile_skies.configuration.captain_kills.tooltip": "Kill counting mode and tracking settings",
+  "hostile_skies.configuration.departure": "Departure",
+  "hostile_skies.configuration.departure.tooltip": "Emergency departure and destruction settings",
   "hostile_skies.configuration.audio": "Audio",
   "hostile_skies.configuration.audio.tooltip": "Sound effects for raid encounters",
 
@@ -55,6 +57,9 @@
 
   "hostile_skies.configuration.raidCaptainKillsCounted": "Count Raid Captain Kills",
   "hostile_skies.configuration.perPlayerKillTracking": "Per-Player Kill Tracking",
+
+  "hostile_skies.configuration.enableExplosions": "Enable Explosions",
+  "hostile_skies.configuration.debrisLifetimeSeconds": "Debris Lifetime (seconds)",
 
   "hostile_skies.configuration.enableSpawnHornSound": "Enable Spawn Horn",
   "hostile_skies.configuration.hornSoundRange": "Horn Sound Range (blocks)"

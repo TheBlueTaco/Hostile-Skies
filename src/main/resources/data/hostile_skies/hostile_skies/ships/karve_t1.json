@@ -22,6 +22,15 @@
     "minAltitudeAboveSea": 60
   },
 
+  "departure": {
+    "emergencyDelayTicks": 200,
+    "detonationCount": 6,
+    "detonationMinInterval": 20,
+    "detonationMaxInterval": 100,
+    "detonationRadius": 3.0,
+    "debrisPerDetonation": 3
+  },
+
   "crew": {
     "captain": 1,
     "pillagers": 1,

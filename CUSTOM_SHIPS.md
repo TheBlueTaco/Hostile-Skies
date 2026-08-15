@@ -184,7 +184,19 @@ All navigation fields are optional. Defaults are tuned for a standard balloon + 
 | `containerTable` | string | `""` | Loot table applied to all containers (barrels, chests) found in the structure, except the captain's chest. Falls back to `minecraft:chests/pillager_outpost` if empty. |
 | `captainTable` | string | `""` | Loot table for the captain's chest. Leave empty if the ship has no captain's chest. |
 | `captainChest` | int[3] | `null` | Structure-relative `[x, y, z]` of the captain's chest. Required if `captainTable` is set. |
+**Departure**
 
+All departure fields are optional. Defaults work for most ships without any `departure` section needed.
+
+| Field | Type | Default | Description                                                                                                                                                                                        |
+|-------|------|---------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `boredDepartTicks` | int | `900` | Ticks the bored departure lasts before the ship despawns. Bored departure is when the ship patrols for the whole cycle and the captain is never killed. The timer pauses while a player is aboard. |
+| `emergencyDelayTicks` | int | `200` | Ticks between the emergency alarm starting and the destruction sequence beginning. This is the player's window to escape or reach the helm safely.                                                 |
+| `detonationCount` | int | `12` | Number of explosion detonation points spread through the ship. Bigger ships should use more.                                                                                                       |
+| `detonationMinInterval` | int | `20` | Minimum ticks between consecutive detonations.                                                                                                                                                     |
+| `detonationMaxInterval` | int | `120` | Maximum ticks between consecutive detonations. Each interval is randomized between min and max.                                                                                                    |
+| `debrisPerDetonation` | int | `4` | Max debris pieces launched per detonation. Takes blocks that were destroyed by an explosion and launches them instead of just setting it to air. This will NOT make the explosion bigger.          |
+| `detonationRadius` | float | `3.5` | Radius in blocks of each detonation. Controls how many blocks are destroyed per explosion.                                                                                                         |
 ## Diagnostic ladder: tuning a new ship
 
 Getting a ship to orbit smoothly takes tuning. After your ship is integrated, turn on debug mode and run /hostileskies raidlog. Then follow this sequence:  

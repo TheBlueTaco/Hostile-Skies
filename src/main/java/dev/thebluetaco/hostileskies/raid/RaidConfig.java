@@ -52,6 +52,10 @@ public class RaidConfig {
     public static final ModConfigSpec.BooleanValue raidCaptainKillsCounted;
     public static final ModConfigSpec.BooleanValue perPlayerKillTracking;
 
+    // Departure
+    public static final ModConfigSpec.BooleanValue enableExplosions;
+    public static final ModConfigSpec.IntValue debrisLifetimeSeconds;
+
     // Audio
     public static final ModConfigSpec.BooleanValue enableSpawnHornSound;
     public static final ModConfigSpec.DoubleValue hornSoundRange;
@@ -219,6 +223,22 @@ public class RaidConfig {
         perPlayerKillTracking = builder
                 .comment("Per-player tracking (true) or shared server-wide total (false)")
                 .define("perPlayerKillTracking", true);
+
+        builder.pop();
+
+        // Departure
+        builder.comment(".",
+                "Emergency departure and destruction settings.");
+        builder.push("departure");
+
+        enableExplosions = builder
+                .comment("Enable the explosion destruction sequence on emergency departures.",
+                         "When false, unclaimed ships still depart with alarm sounds but despawn cleanly.")
+                .define("enableExplosions", true);
+
+        debrisLifetimeSeconds = builder
+                .comment("How long (in seconds) debris fragments persist before being cleaned up")
+                .defineInRange("debrisLifetimeSeconds", 30, 5, 600);
 
         builder.pop();
 
