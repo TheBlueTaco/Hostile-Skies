@@ -24,11 +24,11 @@
 
   "departure": {
     "emergencyDelayTicks": 200,
-    "detonationCount": 6,
-    "detonationMinInterval": 20,
-    "detonationMaxInterval": 100,
+    "detonationCount": 7,
+    "detonationMinInterval": 15,
+    "detonationMaxInterval": 90,
     "detonationRadius": 3.0,
-    "debrisPerDetonation": 3
+    "debrisPerDetonation": 4
   },
 
   "crew": {

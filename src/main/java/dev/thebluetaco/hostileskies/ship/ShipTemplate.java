@@ -9,6 +9,7 @@ import net.minecraft.world.level.storage.loot.LootTable;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.List;
 
 /** All configurable data for a ship design, loaded from a JSON file.
  * One instance per ship type (e.g. "karve_t1", "hirdskip_t2").  */
@@ -19,6 +20,12 @@ public class ShipTemplate {
     public String name = "Unknown Ship";
     public int tier = 1;
     public String structure = "";
+
+    /** Mod IDs that must be loaded for this ship to register. If server is missing mods, silently skip the ship. */
+    public List<String> requiredMods = List.of();
+    /** Ship ID this one replaces. If this ship loads, the target is removed from the registry.
+     *  Used for addon variants (like a Big Cannons Hirdskip that replaces the vanilla Hirdskip when CBC is installed). */
+    public String replaces = "";
 
     public Navigation navigation = new Navigation();
     public Map<String, ControlGroup> controls = new LinkedHashMap<>();
@@ -160,6 +167,14 @@ public class ShipTemplate {
         if (structure.contains(":")) return ResourceLocation.parse(structure);
         String namespace = id.contains(":") ? id.substring(0, id.indexOf(':')) : HostileSkies.MODID;
         return ResourceLocation.fromNamespaceAndPath(namespace, structure);
+    }
+
+    /** Resolves the replaces field, or null if this ship replaces nothing. */
+    public ResourceLocation getReplacesId() {
+        if (replaces == null || replaces.isEmpty()) return null;
+        if (replaces.contains(":")) return ResourceLocation.tryParse(replaces);
+        String namespace = id.contains(":") ? id.substring(0, id.indexOf(':')) : HostileSkies.MODID;
+        return ResourceLocation.fromNamespaceAndPath(namespace, replaces);
     }
 
     /** Resolves the loot table string into a ResourceKey. Falls back to pillager outpost loot. */

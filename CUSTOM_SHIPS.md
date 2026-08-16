@@ -113,12 +113,13 @@ Basic example:
 ### Fields
 
 
-| Field | Type | Default | Description                                                                                                                                |
-|-------|------|---------|--------------------------------------------------------------------------------------------------------------------------------------------|
-| `name` | string | `"Unknown Ship"` | Display name shown in logs and diagnostics.                                                                                                |
-| `tier` | int | `1` | Difficulty tier. T1 ships spawn from the start while higher tiers unlock at higher captain kills. Tiers must be between 1 and 4 currently. |
-| `structure` | string | *required* | Name of the structure NBT file (without the extension). Bare names inherit your datapack's namespace.                                                             |
-
+| Field | Type | Default | Description                                                                                                                                                                              |
+|-------|------|---------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `name` | string | `"Unknown Ship"` | Display name shown in logs and diagnostics.                                                                                                                                              |
+| `tier` | int | `1` | Difficulty tier. T1 ships spawn from the start while higher tiers unlock at higher captain kills. Tiers must be between 1 and 4 currently.                                               |
+| `structure` | string | *required* | Name of the structure NBT file (without the extension). Bare names inherit your datapack's namespace.                                                                                    |
+| `requiredMods` | string[] | `[]` | Mod IDs that must be installed for this ship to load. If the server is missing any, the ship is skipped. Use this for ships built with modded blocks or that spawn in modded dimensions. |
+| `replaces` | string | none | ID of another ship to remove from the registry when this one loads. Use this when you make a variant that replaces the original ship. **See "Things To Note" section.*                   |
 **Controls**
 
 The `controls` map defines named control groups. The navigator currently uses two group names:
@@ -239,13 +240,15 @@ Let the ship run its full orbit and observe. Watch for:
 
 ## Things to note:
 
+**`replaces` is a single pass.** Every loaded ship removes its target, even if that ship itself is replaced by a third. So if A replaces B replaces C, only A survives.  
+Also, make sure to use the namespace of the ship you're replacing. If you wanted to replace my default Karve, you would write `"replaces": "hostile_skies:karve_t1"`. If you just wrote `"replaces": "karve_t1"` instead, it would resolve to your datapack's namespace.
 
 **Rudder type affects diagnostics.** Ships using swivel bearings show a rudder angle in the nav diagnostics. Ships using other bearing types (mechanical bearings, etc.) will show `rudder=NaN`. 
 The diagnostics only check swivel bearings because they need to be disassembled before despawn to prevent stray rudder entities.
 
 **`/tick sprint` might mess with physics.** Best not to use it during navigation testing. `/tick rate` might be better but use with caution as Sable's physics may behave weirdly under acceleration.
 
-**Steam vents reset efficiency each tick.** If your ship uses a steam vent, the vent's own `tick()` resets its efficiency from the unformed tank boiler. The mod force-sets efficiency for the first 200 ticks after spawn.
+**Steam vents reset efficiency each tick.** If your ship uses a steam vent, the vent's own `tick()` resets its efficiency from the unformed tank boiler. Hostile Skies force-sets efficiency for the first 200 ticks after spawn.
 
 **Structure orientation mismatches.** If only half your ship appears after spawning, the most common cause is an orientation mismatch (the structure was saved facing the wrong direction). Verify that the bow faces negative-X, or set `spawnYawOffset: 180`.
 

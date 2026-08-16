@@ -82,8 +82,13 @@ public class SpawnRaidCommand {
                     }
                     String list = ids.stream().map(ResourceLocation::toString)
                             .collect(Collectors.joining(", "));
+                    var suppressed = ShipRegistry.getSuppressed();
+                    String suffix = suppressed.isEmpty() ? "" : "\nSuppressed (" + suppressed.size() + "): "
+                                                                + suppressed.entrySet().stream()
+                                                                  .map(e -> e.getKey() + " (replaced by " + e.getValue() + ")")
+                                                                  .collect(Collectors.joining(", "));
                     ctx.getSource().sendSuccess(() ->
-                            Component.literal("Loaded ships (" + ids.size() + "): " + list), false);
+                            Component.literal("Loaded ships (" + ids.size() + "): " + list + suffix), false);
                     return ids.size();
                 }));
     }

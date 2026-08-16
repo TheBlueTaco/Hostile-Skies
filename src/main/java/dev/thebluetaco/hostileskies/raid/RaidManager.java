@@ -1099,9 +1099,9 @@ public class RaidManager {
         if (wasSeated) {
             Vec3 look = captain.getLookAngle();
             captain.setPos(
-                    captain.getX() + look.x * 0.75,
+                    captain.getX() + look.x * 1,
                     captain.getY(),
-                    captain.getZ() + look.z * 0.75);
+                    captain.getZ() + look.z * 1);
         }
 
         captain.goalSelector.removeAllGoals(g -> true);
@@ -1417,6 +1417,9 @@ public class RaidManager {
 
         // After the countdown, start or tick the destruction chain
         if (raid.departTicks >= raid.ship.departure.emergencyDelayTicks) {
+            if (sl instanceof ServerSubLevel ssl) {
+                disassembleSwivels(ssl, raid.structureSize);
+            }
             if (!RaidConfig.enableExplosions.get()) {
                 // if explosions disabled just wait 20 seconds and despawn
                 return raid.departTicks >= raid.ship.departure.emergencyDelayTicks + 400;

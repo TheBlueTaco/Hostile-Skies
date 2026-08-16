@@ -35,7 +35,7 @@ import java.util.*;
 public class DestructionSequence {
 
     private static final float DISTANCE_FALLOFF_BASE = 0.85F;
-    private static final int MAX_DEBRIS_TOTAL = 30;
+    private static final int MAX_DEBRIS_TOTAL = 150;
     private static final float DEBRIS_IMPULSE_STRENGTH = 3.0F;
     private static final float DEBRIS_UPWARD_BIAS = 1.5F;
     private static final float DEBRIS_ANGULAR_STRENGTH = 4.0F;

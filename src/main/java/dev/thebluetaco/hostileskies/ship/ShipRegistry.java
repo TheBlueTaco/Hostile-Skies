@@ -8,6 +8,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
+import net.neoforged.fml.ModList;
 
 import java.util.*;
 
@@ -15,6 +16,9 @@ import java.util.*;
  * Loads ship templates from data/<namespace>/hostile_skies/ships/*.json.
  * Any datapack (or mod) can add ships, and /reload picks up changes.
  * Registered as a reload listener in HostileSkies#onAddReloadListeners.
+ *
+ * Load pipeline: parse and validate each file, drop ships whose requiredMods
+ * are missing, then let surviving ships suppress the ships they replace.
  */
 public class ShipRegistry extends SimpleJsonResourceReloadListener {
 
@@ -23,6 +27,7 @@ public class ShipRegistry extends SimpleJsonResourceReloadListener {
 
     private static Map<ResourceLocation, ShipTemplate> ships = new LinkedHashMap<>();
     private static Map<Integer, List<ShipTemplate>> byTier = new HashMap<>();
+    private static Map<ResourceLocation, ResourceLocation> suppressed = new LinkedHashMap<>();
 
     public ShipRegistry() {
         super(GSON, DIRECTORY);
@@ -32,7 +37,6 @@ public class ShipRegistry extends SimpleJsonResourceReloadListener {
     protected void apply(Map<ResourceLocation, JsonElement> files,
                          ResourceManager resourceManager, ProfilerFiller profiler) {
         Map<ResourceLocation, ShipTemplate> loaded = new LinkedHashMap<>();
-        Map<Integer, List<ShipTemplate>> tiers = new HashMap<>();
 
         files.forEach((id, json) -> {
             try {
@@ -48,17 +52,57 @@ public class ShipRegistry extends SimpleJsonResourceReloadListener {
                     return;
                 }
 
+                List<String> missing = missingMods(template);
+                if (!missing.isEmpty()) {
+                    HostileSkies.LOGGER.info("Ship '{}' requires missing mod(s) {}, skipping", id, missing);
+                    return;
+                }
+
                 loaded.put(id, template);
-                tiers.computeIfAbsent(template.tier, k -> new ArrayList<>()).add(template);
-                HostileSkies.LOGGER.info("Registered ship '{}': {}", id, template);
             } catch (Exception e) {
                 HostileSkies.LOGGER.error("Failed to parse ship config '{}'", id, e);
             }
         });
 
+        // Any loaded ship removes the ship it replaces
+        Map<ResourceLocation, ResourceLocation> removed = new LinkedHashMap<>();
+        for (Map.Entry<ResourceLocation, ShipTemplate> entry : loaded.entrySet()) {
+            ResourceLocation target = entry.getValue().getReplacesId();
+            if (target == null) continue;
+            if (target.equals(entry.getKey())) {
+                HostileSkies.LOGGER.warn("Ship '{}' replaces itself, ignoring", entry.getKey());
+                continue;
+            }
+            if (!loaded.containsKey(target)) {
+                HostileSkies.LOGGER.warn("Ship '{}' replaces '{}', which is not loaded", entry.getKey(), target);
+                continue;
+            }
+            removed.putIfAbsent(target, entry.getKey());
+        }
+        removed.forEach((target, by) -> {
+            loaded.remove(target);
+            HostileSkies.LOGGER.info("Ship '{}' suppressed by '{}'", target, by);
+        });
+
+        Map<Integer, List<ShipTemplate>> tiers = new HashMap<>();
+        loaded.forEach((id, template) -> {
+            tiers.computeIfAbsent(template.tier, k -> new ArrayList<>()).add(template);
+            HostileSkies.LOGGER.info("Registered ship '{}': {}", id, template);
+        });
+
         ships = loaded;
         byTier = tiers;
-        HostileSkies.LOGGER.info("Loaded {} ship template(s)", ships.size());
+        suppressed = removed;
+        HostileSkies.LOGGER.info("Loaded {} ship template(s), {} suppressed", ships.size(), suppressed.size());
+    }
+
+    private static List<String> missingMods(ShipTemplate template) {
+        if (template.requiredMods == null || template.requiredMods.isEmpty()) return List.of();
+        List<String> missing = new ArrayList<>();
+        for (String modId : template.requiredMods) {
+            if (!ModList.get().isLoaded(modId)) missing.add(modId);
+        }
+        return missing;
     }
 
     public static ShipTemplate get(ResourceLocation id) {
@@ -90,6 +134,11 @@ public class ShipRegistry extends SimpleJsonResourceReloadListener {
     /** All registered ship IDs, for command tab completion. */
     public static Collection<ResourceLocation> getAllIds() {
         return ships.keySet();
+    }
+
+    /** Ships suppressed via `replaces` this reload, mapped to the ship that replaced them. */
+    public static Map<ResourceLocation, ResourceLocation> getSuppressed() {
+        return Collections.unmodifiableMap(suppressed);
     }
 
     public static boolean isEmpty() {
