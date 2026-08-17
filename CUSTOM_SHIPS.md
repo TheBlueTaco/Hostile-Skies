@@ -113,13 +113,15 @@ Basic example:
 ### Fields
 
 
-| Field | Type | Default | Description                                                                                                                                                                              |
-|-------|------|---------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `name` | string | `"Unknown Ship"` | Display name shown in logs and diagnostics.                                                                                                                                              |
-| `tier` | int | `1` | Difficulty tier. T1 ships spawn from the start while higher tiers unlock at higher captain kills. Tiers must be between 1 and 4 currently.                                               |
-| `structure` | string | *required* | Name of the structure NBT file (without the extension). Bare names inherit your datapack's namespace.                                                                                    |
-| `requiredMods` | string[] | `[]` | Mod IDs that must be installed for this ship to load. If the server is missing any, the ship is skipped. Use this for ships built with modded blocks or that spawn in modded dimensions. |
-| `replaces` | string | none | ID of another ship to remove from the registry when this one loads. Use this when you make a variant that replaces the original ship. **See "Things To Note" section.*                   |
+| Field | Type | Default | Description                                                                                                                                                                                                                           |
+|-------|------|---------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `name` | string | `"Unknown Ship"` | Display name shown in logs and diagnostics.                                                                                                                                                                                           |
+| `tier` | int | `1` | Difficulty tier. T1 ships spawn from the start while higher tiers unlock at higher captain kills. Tiers must be between 1 and 4 currently.                                                                                            |
+| `structure` | string | *required* | Name of the structure NBT file (without the extension). Bare names inherit your datapack's namespace.                                                                                                                                 |
+| `requiredMods` | string[] | `[]` | Mod IDs that must be installed for this ship to load. If the server is missing any, the ship is skipped. Use this for ships built with modded blocks or that spawn in modded dimensions.                                              |
+| `replaces` | string | none | Optional ID of another ship to remove from the registry when this one loads. Use this when you make a variant that replaces the original ship. **See "Things To Note" section.*                                                       |
+| `dimensions` | string[] | `["minecraft:overworld"]` | Dimensions this ship spawns in. If a dimension comes from another mod, list that mod in `requiredMods` too. Use `"*"` for all dimensions. Also, `/hostileskies spawnraid` ignores this field so operators can test anywhere. |
+
 **Controls**
 
 The `controls` map defines named control groups. The navigator currently uses two group names:
@@ -240,7 +242,7 @@ Let the ship run its full orbit and observe. Watch for:
 
 ## Things to note:
 
-**`replaces` is a single pass.** Every loaded ship removes its target, even if that ship itself is replaced by a third. So if A replaces B replaces C, only A survives.  
+**`replaces` is a single pass.** Every loaded ship removes its target, even if that ship itself is replaced by a third. So if A replaces B which replaces C, only A survives.  
 Also, make sure to use the namespace of the ship you're replacing. If you wanted to replace my default Karve, you would write `"replaces": "hostile_skies:karve_t1"`. If you just wrote `"replaces": "karve_t1"` instead, it would resolve to your datapack's namespace.
 
 **Rudder type affects diagnostics.** Ships using swivel bearings show a rudder angle in the nav diagnostics. Ships using other bearing types (mechanical bearings, etc.) will show `rudder=NaN`. 

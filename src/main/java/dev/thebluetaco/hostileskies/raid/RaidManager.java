@@ -25,6 +25,7 @@ import dev.thebluetaco.hostileskies.ship.ShipNavigator;
 import dev.thebluetaco.hostileskies.ship.ShipRegistry;
 import dev.thebluetaco.hostileskies.ship.ShipTemplate;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -512,13 +513,12 @@ public class RaidManager {
      * tick Sable makes it findable. Drops any that never appear after RESTORE_TIMEOUT_TICKS. */
     private static void tickRestore(MinecraftServer server) {
         RaidSavedData data = RaidSavedData.get(server);
-        ServerLevel overworld = server.overworld();
         int currentTick = server.getTickCount();
 
         if (!restoreParsed) {
             ListTag list = data.getStoredRaidsNbt();
             for (int i = 0; i < list.size(); i++) {
-                TrackedRaid raid = deserializeRaid(list.getCompound(i), overworld, currentTick);
+                TrackedRaid raid = deserializeRaid(list.getCompound(i), server, currentTick);
                 if (raid != null) pendingRestore.add(raid);
             }
             restoreParsed = true;
@@ -531,17 +531,16 @@ public class RaidManager {
         }
 
         restoreTicksWaited++;
-        ServerSubLevelContainer container = SubLevelContainer.getContainer(overworld);
-        if (container != null) {
-            pendingRestore.removeIf(raid -> {
-                SubLevel sl = container.getSubLevel(raid.subLevelId);
-                if (sl == null || sl.isRemoved()) return false;
-                activeRaids.add(raid);
-                HostileSkies.LOGGER.info("Restored raid: {} ({}), phase={} (attached at tick {})",
-                        raid.ship.name, raid.subLevelId, raid.phase, currentTick);
-                return true;
-            });
-        }
+        pendingRestore.removeIf(raid -> {
+            ServerSubLevelContainer container = SubLevelContainer.getContainer(raid.level);
+            if (container == null) return false;
+            SubLevel sl = container.getSubLevel(raid.subLevelId);
+            if (sl == null || sl.isRemoved()) return false;
+            activeRaids.add(raid);
+            HostileSkies.LOGGER.info("Restored raid: {} ({}), phase={} (attached at tick {})",
+                    raid.ship.name, raid.subLevelId, raid.phase, currentTick);
+            return true;
+        });
 
         if (pendingRestore.isEmpty()) {
             restored = true;
@@ -562,6 +561,7 @@ public class RaidManager {
         CompoundTag tag = new CompoundTag();
         tag.putUUID("subLevelId", raid.subLevelId);
         tag.putString("shipId", raid.ship.id);
+        tag.putString("dimension", raid.level.dimension().location().toString());
 
         tag.putDouble("spawnX", raid.spawnOrigin.x);
         tag.putDouble("spawnY", raid.spawnOrigin.y);
@@ -625,12 +625,26 @@ public class RaidManager {
         return tag;
     }
 
-    private static TrackedRaid deserializeRaid(CompoundTag tag, ServerLevel level, int currentTick) {
+    private static TrackedRaid deserializeRaid(CompoundTag tag, MinecraftServer server, int currentTick) {
         String shipId = tag.getString("shipId");
         ShipTemplate ship = ShipRegistry.get(shipId);
         if (ship == null) {
             HostileSkies.LOGGER.warn("Ship '{}' not in registry. Skipping raid restore...", shipId);
             return null;
+        }
+
+        // Saves before 0.2.0 have no dimension tag
+        ServerLevel level = server.overworld();
+        if (tag.contains("dimension")) {
+            ResourceLocation dimId = ResourceLocation.tryParse(tag.getString("dimension"));
+            ServerLevel found = dimId == null ? null
+                    : server.getLevel(ResourceKey.create(Registries.DIMENSION, dimId));
+            if (found == null) {
+                HostileSkies.LOGGER.warn("Dimension '{}' for raid {} no longer exists. Skipping raid restore...",
+                        tag.getString("dimension"), shipId);
+                return null;
+            }
+            level = found;
         }
 
         UUID subLevelId = tag.getUUID("subLevelId");

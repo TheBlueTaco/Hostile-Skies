@@ -235,7 +235,7 @@ public class ShipNavigator {
         steerToCarrot(sl, t);
 
         if (ticksActive % PATROL_LOG_INTERVAL == 0) {
-            HostileSkies.LOGGER.info(
+            HostileSkies.debug(
                     "[Nav] patrol r={} (target {}) y={} spd={} b/s whl={} trim={}",
                     String.format("%.1f", t.distToCenter),
                     String.format("%.0f", ship.spawning.circleRadius),

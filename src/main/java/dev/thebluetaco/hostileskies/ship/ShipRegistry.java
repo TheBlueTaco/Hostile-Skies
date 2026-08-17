@@ -5,9 +5,11 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import dev.thebluetaco.hostileskies.HostileSkies;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.world.level.Level;
 import net.neoforged.fml.ModList;
 
 import java.util.*;
@@ -50,6 +52,17 @@ public class ShipRegistry extends SimpleJsonResourceReloadListener {
                 if (template.structure == null || template.structure.isEmpty()) {
                     HostileSkies.LOGGER.error("Ship '{}' has no structure field, skipping", id);
                     return;
+                }
+
+                if (template.dimensions == null || template.dimensions.isEmpty()) {
+                    HostileSkies.LOGGER.warn("Ship '{}' has an empty dimensions list and will never spawn naturally", id);
+                    template.dimensions = List.of();
+                }
+                for (String d : template.dimensions) {
+                    if (!d.equals("*") && ResourceLocation.tryParse(d) == null) {
+                        HostileSkies.LOGGER.error("Ship '{}' has invalid dimension id '{}', skipping", id, d);
+                        return;
+                    }
                 }
 
                 List<String> missing = missingMods(template);
@@ -127,6 +140,22 @@ public class ShipRegistry extends SimpleJsonResourceReloadListener {
     /** Randomized pick from ship list. Returns null if no ships exist for that tier. */
     public static ShipTemplate getRandomForTier(int tier, net.minecraft.util.RandomSource random) {
         List<ShipTemplate> candidates = getForTier(tier);
+        if (candidates.isEmpty()) return null;
+        return candidates.get(random.nextInt(candidates.size()));
+    }
+
+    /** Ships for this tier that may spawn naturally in the given dimension. */
+    public static List<ShipTemplate> getForTier(int tier, ResourceKey<Level> dimension) {
+        List<ShipTemplate> out = new ArrayList<>();
+        for (ShipTemplate ship : getForTier(tier)) {
+            if (ship.allowsDimension(dimension)) out.add(ship);
+        }
+        return out;
+    }
+
+    public static ShipTemplate getRandomForTier(int tier, ResourceKey<Level> dimension,
+                                                net.minecraft.util.RandomSource random) {
+        List<ShipTemplate> candidates = getForTier(tier, dimension);
         if (candidates.isEmpty()) return null;
         return candidates.get(random.nextInt(candidates.size()));
     }

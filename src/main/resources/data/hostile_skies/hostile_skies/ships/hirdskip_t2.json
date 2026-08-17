@@ -2,6 +2,7 @@
   "name": "Hirdskip",
   "tier": 2,
   "structure": "hirdskip_t2",
+  "dimensions": ["minecraft:overworld"],
 
   "controls": {
     "lift": {

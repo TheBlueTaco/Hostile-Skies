@@ -2,6 +2,7 @@
   "name": "Lookout",
   "tier": 1,
   "structure": "lookout_t1",
+  "dimensions": ["minecraft:overworld"],
 
   "controls": {
     "lift": {

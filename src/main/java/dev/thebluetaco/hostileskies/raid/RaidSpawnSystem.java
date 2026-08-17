@@ -4,17 +4,21 @@ import dev.thebluetaco.hostileskies.HostileSkies;
 import dev.thebluetaco.hostileskies.command.SpawnRaidCommand;
 import dev.thebluetaco.hostileskies.ship.ShipRegistry;
 import dev.thebluetaco.hostileskies.ship.ShipTemplate;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.*;
 
 /** Automatic raid spawn system. Runs a global spawn attempt every N minutes,
  * with escalating probability, player group targeting, and tier selection.
+ * Groups are built per dimension and ships are filtered by their dimensions list.
  * Called from HostileSkies.onServerTick(). */
 public class RaidSpawnSystem {
 
@@ -42,7 +46,7 @@ public class RaidSpawnSystem {
     // Spawn attempt
 
     private static void attemptSpawn(MinecraftServer server, RaidSavedData data, long currentTick) {
-        ServerLevel overworld = server.overworld();
+        RandomSource random = server.overworld().random;
 
         int activeCount = RaidManager.getActiveRaidCount();
         if (activeCount >= RaidConfig.maxActiveRaids.get()) {
@@ -58,7 +62,10 @@ public class RaidSpawnSystem {
                     activeCount, RaidConfig.maxActiveRaids.get());
         }
 
-        List<PlayerGroup> groups = buildPlayerGroups(overworld, data, currentTick);
+        List<PlayerGroup> groups = new ArrayList<>();
+        for (ServerLevel level : server.getAllLevels()) {
+            groups.addAll(buildPlayerGroups(level, data, currentTick));
+        }
         if (groups.isEmpty()) {
             data.incrementSpawnChance(RaidConfig.spawnChanceBlockedIncrement.get());
             HostileSkies.debug("Spawn blocked (no eligible groups), chance now {}%",
@@ -66,7 +73,7 @@ public class RaidSpawnSystem {
             return;
         }
 
-        double roll = overworld.random.nextDouble() * 100.0;
+        double roll = random.nextDouble() * 100.0;
         double chance = data.getCurrentSpawnChance();
 
         if (roll >= chance) {
@@ -80,29 +87,32 @@ public class RaidSpawnSystem {
         HostileSkies.debug("Spawn roll succeeded ({} < {}%)",
                 String.format("%.1f", roll), String.format("%.1f", chance));
 
-        PlayerGroup target = selectWeightedGroup(groups, overworld.random);
+        PlayerGroup target = selectWeightedGroup(groups, random);
         if (target == null) return;
 
-        int selectedTier = selectTier(target, overworld.random);
+        ResourceKey<Level> dimension = target.level.dimension();
+
+        int selectedTier = selectTier(target, dimension, random);
         if (selectedTier < 1) {
-            HostileSkies.LOGGER.warn("No valid tier selected. Aborting spawn");
+            HostileSkies.LOGGER.warn("No valid tier selected in {}. Aborting spawn", dimension.location());
             return;
         }
 
-        ShipTemplate ship = pickShipForTier(selectedTier, overworld.random);
+        ShipTemplate ship = pickShipForTier(selectedTier, dimension, random);
         if (ship == null) {
-            HostileSkies.LOGGER.warn("No ship registered for tier {} or lower. Aborting...", selectedTier);
+            HostileSkies.LOGGER.warn("No ship registered for tier {} or lower in {}. Aborting...",
+                    selectedTier, dimension.location());
             return;
         }
 
-        double randomAngle = overworld.random.nextDouble() * 2 * Math.PI;
+        double randomAngle = random.nextDouble() * 2 * Math.PI;
         Vec3 lookDir = new Vec3(Math.cos(randomAngle), 0, Math.sin(randomAngle));
 
-        HostileSkies.debug("Attempting spawn: {} (T{}) targeting group of {} at ({}, {})",
+        HostileSkies.debug("Attempting spawn: {} (T{}) targeting group of {} at ({}, {}) in {}",
                 ship.name, ship.tier, target.players.size(),
-                (int) target.centroid.x, (int) target.centroid.z);
+                (int) target.centroid.x, (int) target.centroid.z, dimension.location());
 
-        boolean success = SpawnRaidCommand.spawnShipAt(overworld, target.centroid, lookDir, ship,
+        boolean success = SpawnRaidCommand.spawnShipAt(target.level, target.centroid, lookDir, ship,
                 target.maxBadOmenLevel);
 
         if (success) {
@@ -118,8 +128,8 @@ public class RaidSpawnSystem {
 
             RaidManager.registerTargetedPlayers(targetedIds);
 
-            HostileSkies.LOGGER.info("Raid spawned: {} (T{}), {} player(s) targeted, chance reset to {}%",
-                    ship.name, ship.tier, target.players.size(),
+            HostileSkies.LOGGER.info("Raid spawned: {} (T{}) in {}, {} player(s) targeted, chance reset to {}%",
+                    ship.name, ship.tier, dimension.location(), target.players.size(),
                     String.format("%.1f", data.getCurrentSpawnChance()));
         } else {
             data.incrementSpawnChance(RaidConfig.spawnChanceIncrement.get());
@@ -130,11 +140,11 @@ public class RaidSpawnSystem {
 
     // Player grouping
 
-    /** Clusters eligible overworld players by proximity using union find. */
-    static List<PlayerGroup> buildPlayerGroups(ServerLevel overworld,
+    /** Clusters eligible players in one dimension by proximity using union find. */
+    static List<PlayerGroup> buildPlayerGroups(ServerLevel level,
                                                 RaidSavedData data, long currentTick) {
         List<ServerPlayer> eligible = new ArrayList<>();
-        for (ServerPlayer player : overworld.players()) {
+        for (ServerPlayer player : level.players()) {
             if (player.isSpectator()) continue;
             if (player.isCreative()) continue;
             if (data.isOnCooldown(player.getUUID(), currentTick)) continue;
@@ -167,7 +177,7 @@ public class RaidSpawnSystem {
 
         List<PlayerGroup> groups = new ArrayList<>();
         for (List<ServerPlayer> members : groupMap.values()) {
-            groups.add(new PlayerGroup(members, data));
+            groups.add(new PlayerGroup(level, members, data));
         }
 
         return groups;
@@ -189,8 +199,7 @@ public class RaidSpawnSystem {
 
     // Weighted group selection
 
-    private static PlayerGroup selectWeightedGroup(List<PlayerGroup> groups,
-                                                    net.minecraft.util.RandomSource random) {
+    private static PlayerGroup selectWeightedGroup(List<PlayerGroup> groups, RandomSource random) {
         double totalWeight = 0;
         for (PlayerGroup g : groups) totalWeight += g.weight;
         if (totalWeight <= 0) return null;
@@ -206,7 +215,7 @@ public class RaidSpawnSystem {
 
     // Tier selection
 
-    private static int selectTier(PlayerGroup group, net.minecraft.util.RandomSource random) {
+    private static int selectTier(PlayerGroup group, ResourceKey<Level> dimension, RandomSource random) {
         int maxTier = group.highestUnlockedTier;
         if (maxTier < 1) return -1;
 
@@ -216,11 +225,11 @@ public class RaidSpawnSystem {
             return maxTier;
         }
 
-        // Build weighted pool of enabled tiers that have ships registered
+        // Build weighted pool of enabled tiers that have ships registered for this dimension
         List<int[]> pool = new ArrayList<>();
         for (int t = 1; t <= maxTier; t++) {
             if (!RaidConfig.isTierEnabled(t)) continue;
-            if (ShipRegistry.getForTier(t).isEmpty()) continue;
+            if (ShipRegistry.getForTier(t, dimension).isEmpty()) continue;
             pool.add(new int[]{t, RaidConfig.tierWeight(t)});
         }
 
@@ -254,10 +263,10 @@ public class RaidSpawnSystem {
 
     // Ship selection
 
-    /** Picks a random ship for the given tier, falling back to the next lower tier. */
-    private static ShipTemplate pickShipForTier(int tier, net.minecraft.util.RandomSource random) {
+    /** Picks a random ship allowed in this dimension for the given tier, falling back to the next lower tier. */
+    private static ShipTemplate pickShipForTier(int tier, ResourceKey<Level> dimension, RandomSource random) {
         for (int t = tier; t >= 1; t--) {
-            ShipTemplate ship = ShipRegistry.getRandomForTier(t, random);
+            ShipTemplate ship = ShipRegistry.getRandomForTier(t, dimension, random);
             if (ship != null) return ship;
         }
         return null;
@@ -266,13 +275,15 @@ public class RaidSpawnSystem {
     // Player group data
 
     static class PlayerGroup {
+        final ServerLevel level;
         final List<ServerPlayer> players;
         final Vec3 centroid;
         final int highestUnlockedTier;
         final int maxBadOmenLevel;
         final double weight;
 
-        PlayerGroup(List<ServerPlayer> players, RaidSavedData data) {
+        PlayerGroup(ServerLevel level, List<ServerPlayer> players, RaidSavedData data) {
+            this.level = level;
             this.players = players;
 
             double cx = 0, cy = 0, cz = 0;

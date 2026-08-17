@@ -5,6 +5,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.loot.LootTable;
 
 import java.util.LinkedHashMap;
@@ -23,10 +24,10 @@ public class ShipTemplate {
 
     /** Mod IDs that must be loaded for this ship to register. If server is missing mods, silently skip the ship. */
     public List<String> requiredMods = List.of();
-    /** Ship ID this one replaces. If this ship loads, the target is removed from the registry.
-     *  Used for addon variants (like a Big Cannons Hirdskip that replaces the vanilla Hirdskip when CBC is installed). */
+    /** Optional ship ID this one replaces. If this ship loads, the target is removed from the registry.*/
     public String replaces = "";
-
+    /** Dimension IDs this ship spawns in naturally. Ignored by /hostileskies spawnraid. */
+    public List<String> dimensions = List.of("minecraft:overworld");
     public Navigation navigation = new Navigation();
     public Map<String, ControlGroup> controls = new LinkedHashMap<>();
     public Spawning spawning = new Spawning();
@@ -175,6 +176,15 @@ public class ShipTemplate {
         if (replaces.contains(":")) return ResourceLocation.tryParse(replaces);
         String namespace = id.contains(":") ? id.substring(0, id.indexOf(':')) : HostileSkies.MODID;
         return ResourceLocation.fromNamespaceAndPath(namespace, replaces);
+    }
+
+    /** True if this ship may spawn naturally in the given dimension. */
+    public boolean allowsDimension(ResourceKey<Level> dimension) {
+        for (String d : dimensions) {
+            if (d.equals("*")) return true;
+            if (dimension.location().equals(ResourceLocation.tryParse(d))) return true;
+        }
+        return false;
     }
 
     /** Resolves the loot table string into a ResourceKey. Falls back to pillager outpost loot. */

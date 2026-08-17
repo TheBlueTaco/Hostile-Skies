@@ -2,6 +2,7 @@
   "name": "Karve",
   "tier": 1,
   "structure": "karve_t1",
+  "dimensions": ["minecraft:overworld"],
 
   "controls": {
     "lift": {

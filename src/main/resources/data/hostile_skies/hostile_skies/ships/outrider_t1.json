@@ -2,6 +2,7 @@
   "name": "Outrider",
   "tier": 1,
   "structure": "outrider_t1",
+  "dimensions": ["minecraft:overworld"],
 
   "controls": {
     "lift": {
