@@ -5,8 +5,8 @@ import dev.ryanhcode.sable.sublevel.ServerSubLevel;
 import dev.ryanhcode.sable.sublevel.plot.EmbeddedPlotLevelAccessor;
 import dev.simulated_team.simulated.content.blocks.steering_wheel.SteeringWheelBlockEntity;
 import dev.simulated_team.simulated.content.blocks.swivel_bearing.SwivelBearingBlockEntity;
-import dev.simulated_team.simulated.content.blocks.throttle_lever.ThrottleLeverBlockEntity;
 import dev.thebluetaco.hostileskies.HostileSkies;
+import dev.thebluetaco.hostileskies.raid.RaidManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -544,14 +544,9 @@ public class ShipNavigator {
                                   int signal, String label) {
         EmbeddedPlotLevelAccessor acc = sl.getPlot().getEmbeddedLevelAccessor();
         for (int[] pos : group.levers) {
-            BlockEntity be = acc.getBlockEntity(new BlockPos(pos[0], pos[1], pos[2]));
-            if (be instanceof ThrottleLeverBlockEntity lever) {
-                lever.setSignal(signal);
-            } else {
-                HostileSkies.LOGGER.warn("[Nav] {} lever at [{},{},{}] returned {}",
-                        label, pos[0], pos[1], pos[2],
-                        be != null ? be.getClass().getSimpleName() : "null");
-            }
+            BlockPos leverPos = new BlockPos(pos[0], pos[1], pos[2]);
+            BlockEntity be = acc.getBlockEntity(leverPos);
+            RaidManager.setLeverSignal(be, signal);
         }
         HostileSkies.debug("[Nav] {} signal -> {}", label, signal);
     }

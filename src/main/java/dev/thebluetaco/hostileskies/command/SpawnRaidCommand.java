@@ -5,6 +5,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.simibubi.create.content.redstone.analogLever.AnalogLeverBlockEntity;
 import dev.ryanhcode.sable.api.sublevel.SubLevelContainer;
 import dev.ryanhcode.sable.api.sublevel.ServerSubLevelContainer;
 import dev.ryanhcode.sable.companion.math.Pose3d;
@@ -326,7 +327,7 @@ public class SpawnRaidCommand {
                         HostileSkies.LOGGER.info("Found blaze burner at [{}, {}, {}]",
                                 pos.getX(), pos.getY(), pos.getZ());
                     }
-                    if (be instanceof ThrottleLeverBlockEntity) {
+                    if (be instanceof ThrottleLeverBlockEntity || be instanceof AnalogLeverBlockEntity) {
                         HostileSkies.LOGGER.info("Found throttle lever at [{}, {}, {}]",
                                 pos.getX(), pos.getY(), pos.getZ());
                     }

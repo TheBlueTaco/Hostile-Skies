@@ -20,6 +20,7 @@ import dev.thebluetaco.hostileskies.HostileSkies;
 import dev.thebluetaco.hostileskies.command.SpawnRaidCommand;
 import dev.thebluetaco.hostileskies.entity.HelmChainsEntity;
 import com.simibubi.create.content.contraptions.actors.seat.SeatBlock;
+import com.simibubi.create.content.redstone.analogLever.AnalogLeverBlockEntity;
 import dev.thebluetaco.hostileskies.registry.ModEntityTypes;
 import dev.thebluetaco.hostileskies.ship.ShipNavigator;
 import dev.thebluetaco.hostileskies.ship.ShipRegistry;
@@ -55,6 +56,7 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.util.Mth;
 import net.neoforged.neoforge.event.EventHooks;
 import org.joml.Quaterniond;
 import org.joml.Vector3d;
@@ -784,6 +786,21 @@ public class RaidManager {
         }
     }
 
+    /** Sets a throttle or analog lever to the given signal. Returns false if the block entity is neither.
+     *  Analog levers only expose changeState() + or -1, and its redstone output updates 15 ticks after the last step. */
+    public static boolean setLeverSignal(BlockEntity be, int signal) {
+        if (be instanceof ThrottleLeverBlockEntity lever) {
+            lever.setSignal(signal);
+            return true;
+        }
+        if (be instanceof AnalogLeverBlockEntity lever) {
+            int target = Mth.clamp(signal, 0, 15);
+            while (lever.getState() != target) lever.changeState(lever.getState() > target);
+            return true;
+        }
+        return false;
+    }
+
     private static void applyShipControls(TrackedRaid raid, ServerSubLevel sl) {
         EmbeddedPlotLevelAccessor acc = sl.getPlot().getEmbeddedLevelAccessor();
 
@@ -794,14 +811,11 @@ public class RaidManager {
             for (int[] pos : group.levers) {
                 BlockPos leverPos = new BlockPos(pos[0], pos[1], pos[2]);
                 BlockEntity be = acc.getBlockEntity(leverPos);
-                if (be instanceof ThrottleLeverBlockEntity lever) {
-                    lever.setSignal(group.signal);
-                    HostileSkies.debug("[{}] lever at {}: setSignal({})",
-                            groupName, leverPos, group.signal);
+                if (setLeverSignal(be, group.signal)) {
+                    HostileSkies.debug("[{}] lever at {}: setSignal({})", groupName, leverPos, group.signal);
                 } else {
-                    HostileSkies.LOGGER.warn("[{}] expected ThrottleLeverBlockEntity at {}, got {}",
-                            groupName, leverPos,
-                            be != null ? be.getClass().getSimpleName() : "null");
+                    HostileSkies.LOGGER.warn("[{}] expected a lever at {}, got {}",
+                            groupName, leverPos, be != null ? be.getClass().getSimpleName() : "null");
                 }
             }
         }
@@ -1305,9 +1319,8 @@ public class RaidManager {
             for (int[] pos : group.levers) {
                 BlockPos leverPos = new BlockPos(pos[0], pos[1], pos[2]);
                 BlockEntity be = acc.getBlockEntity(leverPos);
-                if (be instanceof ThrottleLeverBlockEntity lever) {
-                    lever.setSignal(group.mercySignal);
-                    HostileSkies.debug("[mercy] {} at {}: {} -> {}",
+                if (setLeverSignal(be, group.mercySignal)) {
+                    HostileSkies.debug("[{}] lever at {}: mercy {} -> {}",
                             entry.getKey(), leverPos, group.signal, group.mercySignal);
                 }
             }
@@ -1329,9 +1342,8 @@ public class RaidManager {
             for (int[] pos : group.levers) {
                 BlockPos leverPos = new BlockPos(pos[0], pos[1], pos[2]);
                 BlockEntity be = acc.getBlockEntity(leverPos);
-                if (be instanceof ThrottleLeverBlockEntity lever) {
-                    lever.setSignal(group.signal);
-                    HostileSkies.debug("[mercy-exit] {} at {}: {} -> {}",
+                if (setLeverSignal(be, group.signal)) {
+                    HostileSkies.debug("[{}] lever at {}: restore {} -> {}",
                             entry.getKey(), leverPos, group.mercySignal, group.signal);
                 }
             }
