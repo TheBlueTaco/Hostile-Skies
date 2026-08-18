@@ -28,10 +28,9 @@
   },
 
   "crew": {
-    "captain": 1,
-    "pillagers": 0,
-    "vindicators": 0,
+    "captainMob": "minecraft:pillager",
     "captainWeapon": "minecraft:wooden_sword",
+    "mobs": [],
     "captainSpawns": [[6, 3, 7]]
   },
 
