@@ -171,14 +171,14 @@ All navigation fields are optional. Defaults are tuned for a standard balloon + 
 
 **Crew**
 
-| Field | Type | Default | Description |
-|-------|------|---------|-------------|
-| `captain` | int | `1` | Number of captains. Captains drop the Captain's Orders item on death. |
-| `pillagers` | int | `2` | Number of pillagers. |
-| `vindicators` | int | `0` | Number of vindicators. |
-| `captainWeapon` | string | `"minecraft:iron_axe"` | Item ID for the captain's held weapon. |
-| `captainSpawns` | int[][] | `[]` | Fallback captain positions `[x, y, z]` when no red seats exist in the structure. |
-| `crewSpawns` | int[][] | `[]` | Fallback crew positions `[x, y, z]` when no black seats exist in the structure. |
+| Field | Type | Default | Description                                                                                                                                                                                                |
+|-------|------|-------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `captainMob` | string | `"minecraft:pillager"` | Entity ID of the captain. Must be a mob that can pathfind. Captains currently only use a melee combat AI.                                                                                                  |
+| `captainWeapon` | string | `"minecraft:iron_axe"` | Item ID for the captain's held weapon.                                                                                                                                                                     |
+| `captainBanner` | boolean | `true` | Whether the captain wears the ominous banner.                                                                                                                                                              |
+| `mobs` | object[] | `[]` | The entire crew as a list. Each entry has `mob` (entity ID), `count`, and optional `weapon` override. Without a `weapon` field, mobs spawn with their species' default gear. Leave empty for captain only. |
+| `captainSpawns` | int[][] | `[]` | Fallback captain positions `[x, y, z]` when no red seats exist in the structure.                                                                                                                           |
+| `crewSpawns` | int[][] | `[]` | Fallback crew positions `[x, y, z]` when no black seats exist in the structure.                                                                                                                            |
 
 **Loot**
 
@@ -244,6 +244,8 @@ Let the ship run its full orbit and observe. Watch for:
 
 **`replaces` is a single pass.** Every loaded ship removes its target, even if that ship itself is replaced by a third. So if A replaces B which replaces C, only A survives.  
 Also, make sure to use the namespace of the ship you're replacing. If you wanted to replace my default Karve, you would write `"replaces": "hostile_skies:karve_t1"`. If you just wrote `"replaces": "karve_t1"` instead, it would resolve to your datapack's namespace.
+
+**Crew warning:** Undead crew still burn in daylight, some mobs won't survive a Nether ship, and enemy factions may attack each other. Pick crews that make sense for where the ship flies.
 
 **Rudder type affects diagnostics.** Ships using swivel bearings show a rudder angle in the nav diagnostics. Ships using other bearing types (mechanical bearings, etc.) will show `rudder=NaN`. 
 The diagnostics only check swivel bearings because they need to be disassembled before despawn to prevent stray rudder entities.
