@@ -4,11 +4,13 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import dev.thebluetaco.hostileskies.HostileSkies;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
 import net.neoforged.fml.ModList;
 
@@ -64,6 +66,8 @@ public class ShipRegistry extends SimpleJsonResourceReloadListener {
                         return;
                     }
                 }
+
+                if (!validCrew(id, template.crew)) return;
 
                 List<String> missing = missingMods(template);
                 if (!missing.isEmpty()) {
@@ -121,7 +125,6 @@ public class ShipRegistry extends SimpleJsonResourceReloadListener {
     public static ShipTemplate get(ResourceLocation id) {
         ShipTemplate template = ships.get(id);
         // Bare ids parse into the minecraft namespace, so fall back to Hostile Skies.
-        // Also covers save data from before ids were namespaced.
         if (template == null && id.getNamespace().equals(ResourceLocation.DEFAULT_NAMESPACE)) {
             template = ships.get(ResourceLocation.fromNamespaceAndPath(HostileSkies.MODID, id.getPath()));
         }
@@ -172,5 +175,30 @@ public class ShipRegistry extends SimpleJsonResourceReloadListener {
 
     public static boolean isEmpty() {
         return ships.isEmpty();
+    }
+
+    private static boolean validCrew(ResourceLocation id, ShipTemplate.Crew crew) {
+        if (entityType(crew.captainMob) == null) {
+            HostileSkies.LOGGER.error("Ship '{}' has unknown captainMob '{}', skipping", id, crew.captainMob);
+            return false;
+        }
+        for (ShipTemplate.CrewEntry entry : crew.mobs) {
+            if (entityType(entry.mob) == null) {
+                HostileSkies.LOGGER.error("Ship '{}' has unknown crew mob '{}', skipping", id, entry.mob);
+                return false;
+            }
+            if (entry.count < 1) {
+                HostileSkies.LOGGER.error("Ship '{}' crew mob '{}' has count {} (must be >= 1), skipping",
+                        id, entry.mob, entry.count);
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static EntityType<?> entityType(String id) {
+        ResourceLocation rl = ResourceLocation.tryParse(id);
+        if (rl == null || !BuiltInRegistries.ENTITY_TYPE.containsKey(rl)) return null;
+        return BuiltInRegistries.ENTITY_TYPE.get(rl);
     }
 }

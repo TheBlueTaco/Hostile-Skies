@@ -144,15 +144,25 @@ public class ShipTemplate {
     }
 
     public static class Crew {
-        public int captain = 1;
-        public int pillagers = 2;
-        public int vindicators = 0;
-        /** Item ID for the captain's held weapon. */
+        /** Must be a PathfinderMob. */
+        public String captainMob = "minecraft:pillager";
         public String captainWeapon = "minecraft:iron_axe";
+        public boolean captainBanner = true;
+        public List<CrewEntry> mobs = List.of();
         /** Fallback captain spawn positions [x,y,z] when no red seats exist. */
         public int[][] captainSpawns = new int[0][];
         /** Fallback crew spawn positions [x,y,z] when no black seats exist. */
         public int[][] crewSpawns = new int[0][];
+    }
+
+    public static class CrewEntry {
+        public String mob = "minecraft:pillager";
+        public int count = 1;
+        /** Item ID for the main hand. Empty keeps the mob's default equipment. */
+        public String weapon = "";
+
+        public CrewEntry() {}
+        public CrewEntry(String mob, int count) { this.mob = mob; this.count = count; }
     }
 
     public static class Loot {

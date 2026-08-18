@@ -20,7 +20,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.monster.Pillager;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.IEventBus;
@@ -125,20 +126,20 @@ public class HostileSkies {
 
     @SubscribeEvent
     public void onLivingDamage(LivingIncomingDamageEvent event) {
-        if (event.getEntity() instanceof Pillager pillager
-                && pillager.getTags().contains(RaidManager.CAPTAIN_TAG)) {
+        if (event.getEntity() instanceof PathfinderMob captain
+                && captain.getTags().contains(RaidManager.CAPTAIN_TAG)) {
             LOGGER.info("Captain hit! Source: {}", event.getSource().getEntity());
             if (event.getSource().getEntity() instanceof Player) {
-                RaidManager.activateCaptain(pillager);
+                RaidManager.activateCaptain(captain);
             }
         }
     }
 
     @SubscribeEvent
     public void onLivingDeath(LivingDeathEvent event) {
-        if (event.getEntity() instanceof Pillager pillager) {
-            boolean wasActivated = pillager.getTags().contains(RaidManager.ACTIVATED_CAPTAIN_TAG);
-            boolean wasUnactivated = pillager.getTags().contains(RaidManager.CAPTAIN_TAG);
+        if (event.getEntity() instanceof Mob captain) {
+            boolean wasActivated = captain.getTags().contains(RaidManager.ACTIVATED_CAPTAIN_TAG);
+            boolean wasUnactivated = captain.getTags().contains(RaidManager.CAPTAIN_TAG);
 
             if (!wasActivated && !wasUnactivated) {
                 // skip if not a raid captain
@@ -149,7 +150,7 @@ public class HostileSkies {
                 Player killer = null;
                 if (event.getSource().getEntity() instanceof Player p) {
                     killer = p;
-                } else if (pillager.getLastHurtByMob() instanceof Player p) {
+                } else if (captain.getLastHurtByMob() instanceof Player p) {
                     killer = p;
                 }
 
@@ -165,14 +166,14 @@ public class HostileSkies {
                             killer.getName().getString(), kills, tier);
 
                     ItemStack orders = new ItemStack(ModItems.CAPTAINS_ORDERS.get());
-                    pillager.spawnAtLocation(orders);
+                    captain.spawnAtLocation(orders);
                     LOGGER.info("Captain dropped Captain's Orders at ({}, {}, {})",
-                            (int) pillager.getX(), (int) pillager.getY(), (int) pillager.getZ());
+                            (int) captain.getX(), (int) captain.getY(), (int) captain.getZ());
                 } else {
                     LOGGER.info("Captain died to a non player cause. Triggering departure...");
                 }
 
-                RaidManager.onCaptainKilledForRaid(pillager);
+                RaidManager.onCaptainKilledForRaid(captain);
             }
         }
         // Player death aboard raid ship triggers mercy

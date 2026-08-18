@@ -25,6 +25,7 @@ import dev.thebluetaco.hostileskies.ship.ShipNavigator;
 import dev.thebluetaco.hostileskies.ship.ShipRegistry;
 import dev.thebluetaco.hostileskies.ship.ShipTemplate;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -40,7 +41,9 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.monster.Pillager;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -52,6 +55,7 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.event.EventHooks;
 import org.joml.Quaterniond;
 import org.joml.Vector3d;
 
@@ -680,7 +684,7 @@ public class RaidManager {
         );
 
         String phaseName = tag.getString("phase");
-        if ("DEPARTING".equals(phaseName)) phaseName = "DEPARTING_BORED"; // 0.1.5 and older saves still work
+        if ("DEPARTING".equals(phaseName)) phaseName = "DEPARTING_BORED"; // Saves before 0.2.0 still work
         raid.phase = RaidPhase.valueOf(phaseName);
         raid.patrolTicksRemaining = tag.getInt("patrolTicksRemaining");
         raid.controlsApplied = tag.getBoolean("controlsApplied");
@@ -862,32 +866,29 @@ public class RaidManager {
                 currentPose.position().x(),
                 currentPose.position().y(),
                 currentPose.position().z());
+        ShipTemplate.Crew crewCfg = raid.ship.crew;
 
         if (!raid.captainSeats.isEmpty()) {
-            Pillager captain = EntityType.PILLAGER.create(raid.level);
-            if (captain != null) {
-                BlockPos seatPlot = raid.captainSeats.get(0);
-                Vec3 seatWorld = plotToWorld(currentOrientation, seatPlot, raid.structureSize, currentOrigin);
+            BlockPos seatPlot = raid.captainSeats.get(0);
+            Vec3 seatWorld = plotToWorld(currentOrientation, seatPlot, raid.structureSize, currentOrigin);
+            Mob spawned = createMob(raid, crewCfg.captainMob, seatWorld, crewCfg.captainWeapon);
 
+            if (spawned instanceof PathfinderMob captain) {
                 captain.setPos(seatWorld.x, seatWorld.y, seatWorld.z);
 
                 captain.goalSelector.removeAllGoals(g -> true);
                 captain.targetSelector.removeAllGoals(g -> true);
-
                 captain.goalSelector.addGoal(0,
                         new net.minecraft.world.entity.ai.goal.LookAtPlayerGoal(
                                 captain, Player.class, 15.0F));
 
-                captain.setPersistenceRequired();
                 captain.setCustomName(Component.literal("Captain"));
                 captain.setCustomNameVisible(true);
-
-                captain.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(
-                        net.minecraft.core.registries.BuiltInRegistries.ITEM.get(
-                                ResourceLocation.parse(raid.ship.crew.captainWeapon))));
-                captain.setItemSlot(EquipmentSlot.HEAD,
-                        net.minecraft.world.entity.raid.Raid.getLeaderBannerInstance(
-                                captain.registryAccess().lookupOrThrow(net.minecraft.core.registries.Registries.BANNER_PATTERN)));
+                if (crewCfg.captainBanner) {
+                    captain.setItemSlot(EquipmentSlot.HEAD,
+                            net.minecraft.world.entity.raid.Raid.getLeaderBannerInstance(
+                                    captain.registryAccess().lookupOrThrow(Registries.BANNER_PATTERN)));
+                }
 
                 captain.addTag(CAPTAIN_TAG);
                 captain.addTag(CAPTAIN_RAID_PREFIX + raid.subLevelId.toString());
@@ -919,53 +920,58 @@ public class RaidManager {
                     captain.setYBodyRot(finalYaw);
                 }
 
-                HostileSkies.debug("Spawned captain: plot={}, world=({}, {}, {})",
-                        seatPlot, seatWorld.x, seatWorld.y, seatWorld.z);
+                HostileSkies.debug("Spawned captain ({}): plot={}, world=({}, {}, {})",
+                        crewCfg.captainMob, seatPlot, seatWorld.x, seatWorld.y, seatWorld.z);
+            } else if (spawned != null) {
+                spawned.discard();
+                HostileSkies.LOGGER.error("Captain '{}' is not a PathfinderMob, raid has no captain", crewCfg.captainMob);
             }
         }
 
         double crewMultiplier = raid.badOmenLevel > 0
                 ? RaidConfig.badOmenCrewMultiplier(raid.badOmenLevel) : 1.0;
-        int pillagersToSpawn = (int) Math.ceil(raid.ship.crew.pillagers * crewMultiplier);
-        int vindicatorsToSpawn = (int) Math.ceil(raid.ship.crew.vindicators * crewMultiplier);
 
-        HostileSkies.debug("Crew: {}x pillagers, {}x vindicators (multiplier {})",
-                pillagersToSpawn, vindicatorsToSpawn, crewMultiplier);
+        int seatIndex = 0;
+        for (ShipTemplate.CrewEntry entry : crewCfg.mobs) {
+            int toSpawn = (int) Math.ceil(entry.count * crewMultiplier);
+            HostileSkies.debug("Crew: {}x {} (multiplier {})", toSpawn, entry.mob, crewMultiplier);
 
-        for (int i = 0; i < pillagersToSpawn; i++) {
-            BlockPos seatPlot = raid.crewSeats.isEmpty()
-                    ? (raid.captainSeats.isEmpty() ? null : raid.captainSeats.get(0))
-                    : raid.crewSeats.get(i % raid.crewSeats.size());
-            if (seatPlot == null) break;
+            for (int i = 0; i < toSpawn; i++) {
+                BlockPos seatPlot = raid.crewSeats.isEmpty()
+                        ? (raid.captainSeats.isEmpty() ? null : raid.captainSeats.get(0))
+                        : raid.crewSeats.get(seatIndex % raid.crewSeats.size());
+                if (seatPlot == null) return;
+                seatIndex++;
 
-            Pillager crew = EntityType.PILLAGER.create(raid.level);
-            if (crew != null) {
                 Vec3 seatWorld = plotToWorld(currentOrientation, seatPlot, raid.structureSize, currentOrigin);
+                Mob crew = createMob(raid, entry.mob, seatWorld, entry.weapon);
+                if (crew == null) continue;
                 crew.setPos(seatWorld.x, seatWorld.y + 1.0, seatWorld.z);
-                crew.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.CROSSBOW));
-                crew.setPersistenceRequired();
                 raid.level.addFreshEntity(crew);
-                HostileSkies.debug("Spawned pillager {}/{}: plot={}", i + 1, pillagersToSpawn, seatPlot);
+                HostileSkies.debug("Spawned {} {}/{}: plot={}", entry.mob, i + 1, toSpawn, seatPlot);
             }
         }
+    }
 
-        for (int i = 0; i < vindicatorsToSpawn; i++) {
-            BlockPos seatPlot = raid.crewSeats.isEmpty()
-                    ? (raid.captainSeats.isEmpty() ? null : raid.captainSeats.get(0))
-                    : raid.crewSeats.get(i % raid.crewSeats.size());
-            if (seatPlot == null) break;
-
-            net.minecraft.world.entity.monster.Vindicator vind =
-                    EntityType.VINDICATOR.create(raid.level);
-            if (vind != null) {
-                Vec3 seatWorld = plotToWorld(currentOrientation, seatPlot, raid.structureSize, currentOrigin);
-                vind.setPos(seatWorld.x, seatWorld.y + 1.0, seatWorld.z);
-                vind.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.IRON_AXE));
-                vind.setPersistenceRequired();
-                raid.level.addFreshEntity(vind);
-                HostileSkies.debug("Spawned vindicator {}/{}: plot={}", i + 1, vindicatorsToSpawn, seatPlot);
-            }
+    /** Creates a mob with its species' default gear, optionally overriding the main hand. */
+    private static Mob createMob(TrackedRaid raid, String typeId, Vec3 pos, String weapon) {
+        EntityType<?> type = BuiltInRegistries.ENTITY_TYPE.get(ResourceLocation.parse(typeId));
+        Entity entity = type.create(raid.level);
+        if (!(entity instanceof Mob mob)) {
+            if (entity != null) entity.discard();
+            HostileSkies.LOGGER.error("Crew type '{}' is not a Mob, skipping", typeId);
+            return null;
         }
+        mob.setPos(pos.x, pos.y, pos.z);
+        EventHooks.finalizeMobSpawn(mob, raid.level,
+                raid.level.getCurrentDifficultyAt(BlockPos.containing(pos)),
+                MobSpawnType.EVENT, null);
+        if (weapon != null && !weapon.isEmpty()) {
+            mob.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(
+                    BuiltInRegistries.ITEM.get(ResourceLocation.parse(weapon))));
+        }
+        mob.setPersistenceRequired();
+        return mob;
     }
 
     // Chain visual
@@ -1088,7 +1094,7 @@ public class RaidManager {
     }
 
     /** Activates captain combat AI and marks the raid as engaged. */
-    public static void activateCaptain(Pillager captain) {
+    public static void activateCaptain(PathfinderMob captain) {
         for (String tag : captain.getTags()) {
             if (tag.startsWith(CAPTAIN_RAID_PREFIX)) {
                 try {
