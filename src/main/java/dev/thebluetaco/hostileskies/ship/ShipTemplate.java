@@ -147,6 +147,7 @@ public class ShipTemplate {
         /** Must be a PathfinderMob. */
         public String captainMob = "minecraft:pillager";
         public String captainWeapon = "minecraft:iron_axe";
+        public Map<String, Integer> captainEnchantments = Map.of();
         public boolean captainBanner = true;
         public List<CrewEntry> mobs = List.of();
         /** Fallback captain spawn positions [x,y,z] when no red seats exist. */
@@ -160,6 +161,7 @@ public class ShipTemplate {
         public int count = 1;
         /** Item ID for the main hand. Empty keeps the mob's default equipment. */
         public String weapon = "";
+        public Map<String, Integer> enchantments = Map.of();
 
         public CrewEntry() {}
         public CrewEntry(String mob, int count) { this.mob = mob; this.count = count; }

@@ -35,6 +35,7 @@
   "crew": {
     "captainMob": "minecraft:pillager",
     "captainWeapon": "minecraft:wooden_sword",
+    "captainEnchantments": {},
     "mobs": [{ "mob": "minecraft:pillager", "count": 1 }]
   },
 

@@ -48,6 +48,7 @@ import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
 import net.minecraft.world.level.storage.loot.LootParams;
@@ -885,7 +886,8 @@ public class RaidManager {
         if (!raid.captainSeats.isEmpty()) {
             BlockPos seatPlot = raid.captainSeats.get(0);
             Vec3 seatWorld = plotToWorld(currentOrientation, seatPlot, raid.structureSize, currentOrigin);
-            Mob spawned = createMob(raid, crewCfg.captainMob, seatWorld, crewCfg.captainWeapon);
+            Mob spawned = createMob(raid, crewCfg.captainMob, seatWorld,
+                    crewCfg.captainWeapon, crewCfg.captainEnchantments);
 
             if (spawned instanceof PathfinderMob captain) {
                 captain.setPos(seatWorld.x, seatWorld.y, seatWorld.z);
@@ -958,7 +960,7 @@ public class RaidManager {
                 seatIndex++;
 
                 Vec3 seatWorld = plotToWorld(currentOrientation, seatPlot, raid.structureSize, currentOrigin);
-                Mob crew = createMob(raid, entry.mob, seatWorld, entry.weapon);
+                Mob crew = createMob(raid, entry.mob, seatWorld, entry.weapon, entry.enchantments);
                 if (crew == null) continue;
                 crew.setPos(seatWorld.x, seatWorld.y + 1.0, seatWorld.z);
                 raid.level.addFreshEntity(crew);
@@ -968,7 +970,8 @@ public class RaidManager {
     }
 
     /** Creates a mob with its species' default gear, optionally overriding the main hand. */
-    private static Mob createMob(TrackedRaid raid, String typeId, Vec3 pos, String weapon) {
+    private static Mob createMob(TrackedRaid raid, String typeId, Vec3 pos,
+                                 String weapon, Map<String, Integer> enchantments) {
         EntityType<?> type = BuiltInRegistries.ENTITY_TYPE.get(ResourceLocation.parse(typeId));
         Entity entity = type.create(raid.level);
         if (!(entity instanceof Mob mob)) {
@@ -981,8 +984,16 @@ public class RaidManager {
                 raid.level.getCurrentDifficultyAt(BlockPos.containing(pos)),
                 MobSpawnType.EVENT, null);
         if (weapon != null && !weapon.isEmpty()) {
-            mob.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(
-                    BuiltInRegistries.ITEM.get(ResourceLocation.parse(weapon))));
+            ItemStack stack = new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.parse(weapon)));
+            if (enchantments != null && !enchantments.isEmpty()) {
+                var registry = raid.level.registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
+                enchantments.forEach((enchId, level) -> {
+                    ResourceKey<Enchantment> key = ResourceKey.create(Registries.ENCHANTMENT,
+                            ResourceLocation.parse(enchId));
+                    registry.get(key).ifPresent(holder -> stack.enchant(holder, level));
+                });
+            }
+            mob.setItemSlot(EquipmentSlot.MAINHAND, stack);
         }
         mob.setPersistenceRequired();
         return mob;

@@ -75,33 +75,43 @@ Basic example:
   "name": "My Ship",
   "tier": 1,
   "structure": "my_ship",
-
+  "requiredmods": [],
+  "replaces": "hostile_skies:karve_t1",
+  "dimensions": ["minecraft:overworld"],
+ 
   "controls": {
-    "lift": {
-      "signal": 11,
-      "levers": [[9, 2, 3]]
-    },
-    "throttle": {
-      "signal": 12,
-      "mercySignal": 6,
-      "levers": [[12, 3, 3]]
-    }
+   "lift": {
+    "signal": 11,
+    "levers": [[9, 2, 3]]
+   },
+   "throttle": {
+    "signal": 12,
+    "mercySignal": 6,
+    "levers": [[12, 3, 3]]
+   }
   },
-
+ 
   "spawning": {
-    "spawnDistance": 75,
-    "circleRadius": 80,
-    "terrainClearance": 40,
-    "minAltitudeAboveSea": 60
+   "spawnDistance": 75,
+   "circleRadius": 80,
+   "terrainClearance": 40,
+   "minAltitudeAboveSea": 60
   },
-
+ 
+  "departure": {
+   "emergencyDelayTicks": 200,
+   "detonationCount": 7,
+   "detonationMinInterval": 15,
+   "detonationMaxInterval": 90,
+   "detonationRadius": 3.0,
+   "debrisPerDetonation": 4
+  },
+ 
   "crew": {
-    "captain": 1,
-    "pillagers": 2,
-    "vindicators": 0,
-    "captainWeapon": "minecraft:wooden_sword",
-    "captainSpawns": [[4, 1, 3]],
-    "crewSpawns": [[4, 8, 3], [8, 8, 3]]
+   "captainMob": "minecraft:pillager",
+   "captainWeapon": "minecraft:wooden_sword",
+   "captainEnchantments": { "minecraft:fire_aspect": 1 },
+   "mobs": [{ "mob": "minecraft:skeleton", "count": 1, "weapon": "minecraft:bow", "enchantments": { "minecraft:smite": 15, "minecraft:sharpness":  13} }]
   },
 
   "loot": {
@@ -113,14 +123,14 @@ Basic example:
 ### Fields
 
 
-| Field | Type | Default | Description                                                                                                                                                                                                                           |
-|-------|------|---------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `name` | string | `"Unknown Ship"` | Display name shown in logs and diagnostics.                                                                                                                                                                                           |
-| `tier` | int | `1` | Difficulty tier. T1 ships spawn from the start while higher tiers unlock at higher captain kills. Tiers must be between 1 and 4 currently.                                                                                            |
-| `structure` | string | *required* | Name of the structure NBT file (without the extension). Bare names inherit your datapack's namespace.                                                                                                                                 |
-| `requiredMods` | string[] | `[]` | Mod IDs that must be installed for this ship to load. If the server is missing any, the ship is skipped. Use this for ships built with modded blocks or that spawn in modded dimensions.                                              |
-| `replaces` | string | none | Optional ID of another ship to remove from the registry when this one loads. Use this when you make a variant that replaces the original ship. **See "Things To Note" section.*                                                       |
-| `dimensions` | string[] | `["minecraft:overworld"]` | Dimensions this ship spawns in. If a dimension comes from another mod, list that mod in `requiredMods` too. Use `"*"` for all dimensions. Also, `/hostileskies spawnraid` ignores this field so operators can test anywhere. |
+| Field          | Type     | Default                   | Description                                                                                                                                                                                                                           |
+|----------------|----------|---------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `name`         | string   | `"Unknown Ship"`          | Display name shown in logs and diagnostics.                                                                                                                                                                                           |
+| `tier`         | int      | `1`                       | Difficulty tier. T1 ships spawn from the start while higher tiers unlock at higher captain kills. Tiers must be between 1 and 4 currently.                                                                                            |
+| `structure`    | string   | *required*                | Name of the structure NBT file (without the extension). Bare names inherit your datapack's namespace.                                                                                                                                 |
+| `requiredMods` | string[] | `[]`                      | Mod IDs that must be installed for this ship to load. If the server is missing any, the ship is skipped. Use this for ships built with modded blocks or that spawn in modded dimensions.                                              |
+| `replaces`     | string   | none                      | Optional ID of another ship to remove from the registry when this one loads. Use this when you make a variant that replaces the original ship. **See "Things To Note" section.*                                                       |
+| `dimensions`   | string[] | `["minecraft:overworld"]` | Dimensions this ship spawns in. If a dimension comes from another mod, list that mod in `requiredMods` too. Use `"*"` for all dimensions. Also, `/hostileskies spawnraid` ignores this field so operators can test anywhere. |
 
 **Controls**
 
@@ -131,75 +141,76 @@ The `controls` map defines named control groups. The navigator currently uses tw
 
 Each control group has:
 
-| Field | Type | Default | Description                                                                                                                                                                                                                           |
-|-------|------|---------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `signal` | int | `0` | Redstone signal level (0–15) applied during normal flight.                                                                                                                                                                            |
-| `mercySignal` | int | `-1` | Signal applied during the mercy phase (when a player dies onboard the ship). Set to `-1` to leave unchanged during mercy. For throttle, this should be lower than `signal` to slow the ship, unless you want the ship to speed up lol |
-| `levers` | int[][] | `[]` | Structure-relative `[x, y, z]` positions of throttle levers in this group. Currently these must be Simulated `ThrottleLeverBlock` positions.                                                                                          |
+| Field         | Type    | Default | Description                                                                                                                                                                                                                           |
+|---------------|---------|---------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `signal`      | int     | `0`     | Redstone signal level (0–15) applied during normal flight.                                                                                                                                                                            |
+| `mercySignal` | int     | `-1`    | Signal applied during the mercy phase (when a player dies onboard the ship). Set to `-1` to leave unchanged during mercy. For throttle, this should be lower than `signal` to slow the ship, unless you want the ship to speed up lol |
+| `levers`      | int[][] | `[]`    | Structure-relative `[x, y, z]` positions of throttle levers in this group. Currently these must be Simulated `ThrottleLeverBlock` positions.                                                                                          |
 
 **Navigation**
 
-All navigation fields are optional. Defaults are tuned for a standard balloon + rudder ship. Only override what you need.
+All navigation fields are optional. Standard practice should be to ignore these initially, as defaults are tuned for a standard balloon + rudder ship. Then, only override what you need.
 
-| Field | Type | Default | Description                                                                                                                                        |
-|-------|------|---------|----------------------------------------------------------------------------------------------------------------------------------------------------|
-| `steerCadenceTicks` | int | `30` | Ticks between steering wheel commands. Must exceed the wheel's kinetic sequence duration (~21 ticks for a 90° swing at 16 RPM).                    |
-| `headingKp` | double | `1.2` | Proportional gain: wheel degrees per degree of heading error.                                                                                      |
-| `headingKd` | double | `6.0` | Derivative gain: wheel degrees per degree/second of error rate.                                                                                    |
-| `headingKi` | double | `0.05` | Trim integrator: corrects small steady-state heading drift.                                                                                        |
-| `carrotLeadDeg` | double | `30.0` | How far ahead (degrees of arc) the guidance target leads the ship around its orbit.                                                                |
-| `spawnYawOffset` | double | `0.0` | Degrees added to spawn orientation. Use `180` if the ship faces positive-X instead of negative-X.                                                  |
-| `avoidanceEnabled` | boolean | `true` | Whether terrain avoidance is active.                                                                                                               |
-| `lookaheadSeconds` | double | `6.0` | Seconds of travel the terrain probe looks ahead.                                                                                                   |
-| `terrainMargin` | double | `8.0` | Minimum clearance in blocks between the bottom of the ship and terrain.                                                                            |
-| `liftBoostMax` | int | `3` | Maximum signal levels added to base lift when climbing over terrain. Subject to change when I rewrite the liftboost to be linear instead of on/off |
-| `avoidThrottleSignal` | int | `-1` | Throttle signal during avoidance. `-1` disables throttle adjustment.                                                                               |
-| `stuckSpeedThreshold` | double | `0.05` | Speed (blocks/tick) below which the ship counts as stuck.                                                                                          |
-| `stuckSeconds` | int | `5` | Seconds below threshold before stuck recovery triggers.                                                                                            |
-| `unstickSeconds` | int | `10` | Base recovery duration Actual is randomized 1-1.5x. (This is for the rare case in which two ships collide with each other)                         |
-| `unstickLiftBoost` | int | `2` | Signal levels added/subtracted from base lift during unstick.                                                                                      |
-| `unstickThrottleSignal` | int | `0` | Throttle signal during stuck recovery. `0` or `15` stops most engines, but some don't. Check your ship empirically.                                |
+| Field                   | Type    | Default | Description                                                                                                                                        |
+|-------------------------|---------|---------|----------------------------------------------------------------------------------------------------------------------------------------------------|
+| `steerCadenceTicks`     | int     | `30`    | Ticks between steering wheel commands. Must exceed the wheel's kinetic sequence duration (~21 ticks for a 90° swing at 16 RPM).                    |
+| `headingKp`             | double  | `1.2`   | Proportional gain: wheel degrees per degree of heading error.                                                                                      |
+| `headingKd`             | double  | `6.0`   | Derivative gain: wheel degrees per degree/second of error rate.                                                                                    |
+| `headingKi`             | double  | `0.05`  | Trim integrator: corrects small steady-state heading drift.                                                                                        |
+| `carrotLeadDeg`         | double  | `30.0`  | How far ahead (degrees of arc) the guidance target leads the ship around its orbit.                                                                |
+| `spawnYawOffset`        | double  | `0.0`   | Degrees added to spawn orientation. Use `180` if the ship faces positive-X instead of negative-X.                                                  |
+| `avoidanceEnabled`      | boolean | `true`  | Whether terrain avoidance is active.                                                                                                               |
+| `lookaheadSeconds`      | double  | `6.0`   | Seconds of travel the terrain probe looks ahead.                                                                                                   |
+| `terrainMargin`         | double  | `8.0`   | Minimum clearance in blocks between the bottom of the ship and terrain.                                                                            |
+| `liftBoostMax`          | int     | `3`     | Maximum signal levels added to base lift when climbing over terrain. Subject to change when I rewrite the liftboost to be linear instead of on/off |
+| `avoidThrottleSignal`   | int     | `-1`    | Throttle signal during avoidance. `-1` disables throttle adjustment.                                                                               |
+| `stuckSpeedThreshold`   | double  | `0.05`  | Speed (blocks/tick) below which the ship counts as stuck.                                                                                          |
+| `stuckSeconds`          | int     | `5`     | Seconds below threshold before stuck recovery triggers.                                                                                            |
+| `unstickSeconds`        | int     | `10`    | Base recovery duration Actual is randomized 1-1.5x. (This is for the rare case in which two ships collide with each other)                         |
+| `unstickLiftBoost`      | int     | `2`     | Signal levels added/subtracted from base lift during unstick.                                                                                      |
+| `unstickThrottleSignal` | int     | `0`     | Throttle signal during stuck recovery. `0` or `15` stops most engines, but some don't. Check your ship empirically.                                |
 
 **Spawning**
 
-| Field | Type | Default | Description                                                                                                                                                                                                                                                  |
-|-------|------|---------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `spawnDistance` | double | `75` | How far behind the patrol center the ship spawns (its approach runway).                                                                                                                                                                                      |
-| `circleRadius` | double | `80` | Orbit radius. Must exceed the ship's minimum turn radius (`cruise_speed / max_turn_rate`). If the ship can't hold the orbit, increase this. Current recommendation is to make it ~15% bigger than the tightest turn possible for avoidance to work properly. |
-| `terrainClearance` | int | `40` | If the ship spawns over land, how many blocks above the terrain it will spawn.                                                                                                                                                                               |
-| `minAltitudeAboveSea` | int | `60` | How many blocks it will spawn above sea level.                                                                                                                                                                                                               |
+| Field                 | Type   | Default | Description                                                                                                                                                                                                                                                  |
+|-----------------------|--------|---------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `spawnDistance`       | double | `75` | How far behind the patrol center the ship spawns (its approach runway).                                                                                                                                                                                      |
+| `circleRadius`        | double | `80` | Orbit radius. Must exceed the ship's minimum turn radius (`cruise_speed / max_turn_rate`). If the ship can't hold the orbit, increase this. Current recommendation is to make it ~15% bigger than the tightest turn possible for avoidance to work properly. |
+| `terrainClearance`    | int    | `40` | If the ship spawns over land, how many blocks above the terrain it will spawn.                                                                                                                                                                               |
+| `minAltitudeAboveSea` | int    | `60` | How many blocks it will spawn above sea level.                                                                                                                                                                                                               |
 
 **Crew**
 
-| Field | Type | Default | Description                                                                                                                                                                                                |
-|-------|------|-------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `captainMob` | string | `"minecraft:pillager"` | Entity ID of the captain. Must be a mob that can pathfind. Captains currently only use a melee combat AI.                                                                                                  |
-| `captainWeapon` | string | `"minecraft:iron_axe"` | Item ID for the captain's held weapon.                                                                                                                                                                     |
-| `captainBanner` | boolean | `true` | Whether the captain wears the ominous banner.                                                                                                                                                              |
-| `mobs` | object[] | `[]` | The entire crew as a list. Each entry has `mob` (entity ID), `count`, and optional `weapon` override. Without a `weapon` field, mobs spawn with their species' default gear. Leave empty for captain only. |
-| `captainSpawns` | int[][] | `[]` | Fallback captain positions `[x, y, z]` when no red seats exist in the structure.                                                                                                                           |
-| `crewSpawns` | int[][] | `[]` | Fallback crew positions `[x, y, z]` when no black seats exist in the structure.                                                                                                                            |
+| Field                 | Type     | Default                | Description                                                                                                                                                                                                                                                            |
+|-----------------------|----------|------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `captainMob`          | string   | `"minecraft:pillager"` | Entity ID of the captain. Must be a mob that can pathfind. Captains currently only use a melee combat AI.                                                                                                                                                              |
+| `captainWeapon`       | string   | `"minecraft:iron_axe"` | Item ID for the captain's held weapon.                                                                                                                                                                                                                                 |
+| `captainBanner`       | boolean  | `true`                 | Whether the captain wears the ominous banner.                                                                                                                                                                                                                          |
+| `captainEnchantments` | object   | `{}`                   | The enchantment ID and value of the captain's enchantment(s). Note that these values are not capped or enforced, so feel free to put knockback X on a stick. **See Example JSON*.                                                                                      |
+| `mobs`                | object[] | `[]`                   | The entire crew as a list. Each entry has `mob` (entity ID), `count`, and optional `weapon` override. Without a `weapon` field, mobs spawn with their species' default gear. Additionally, an `enchantments` field exists if `weapon` is defined. **See Example JSON*. |
+| `captainSpawns`       | int[][]  | `[]`                   | Fallback captain positions `[x, y, z]` when no red seats exist in the structure.                                                                                                                                                                                       |
+| `crewSpawns`          | int[][]  | `[]`                   | Fallback crew positions `[x, y, z]` when no black seats exist in the structure.                                                                                                                                                                                        |
 
 **Loot**
 
-| Field | Type | Default | Description |
-|-------|------|---------|-------------|
-| `containerTable` | string | `""` | Loot table applied to all containers (barrels, chests) found in the structure, except the captain's chest. Falls back to `minecraft:chests/pillager_outpost` if empty. |
-| `captainTable` | string | `""` | Loot table for the captain's chest. Leave empty if the ship has no captain's chest. |
-| `captainChest` | int[3] | `null` | Structure-relative `[x, y, z]` of the captain's chest. Required if `captainTable` is set. |
+| Field            | Type   | Default | Description                                                                                                                                                            |
+|------------------|--------|---------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `containerTable` | string | `""`    | Loot table applied to all containers (barrels, chests) found in the structure, except the captain's chest. Falls back to `minecraft:chests/pillager_outpost` if empty. |
+| `captainTable`   | string | `""`    | Loot table for the captain's chest. Leave empty if the ship has no captain's chest.                                                                                    |
+| `captainChest`   | int[3] | `null`  | Structure-relative `[x, y, z]` of the captain's chest. Required if `captainTable` is set.                                                                              |
 **Departure**
 
 All departure fields are optional. Defaults work for most ships without any `departure` section needed.
 
-| Field | Type | Default | Description                                                                                                                                                                                        |
-|-------|------|---------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `boredDepartTicks` | int | `900` | Ticks the bored departure lasts before the ship despawns. Bored departure is when the ship patrols for the whole cycle and the captain is never killed. The timer pauses while a player is aboard. |
-| `emergencyDelayTicks` | int | `200` | Ticks between the emergency alarm starting and the destruction sequence beginning. This is the player's window to escape or reach the helm safely.                                                 |
-| `detonationCount` | int | `12` | Number of explosion detonation points spread through the ship. Bigger ships should use more.                                                                                                       |
-| `detonationMinInterval` | int | `20` | Minimum ticks between consecutive detonations.                                                                                                                                                     |
-| `detonationMaxInterval` | int | `120` | Maximum ticks between consecutive detonations. Each interval is randomized between min and max.                                                                                                    |
-| `debrisPerDetonation` | int | `4` | Max debris pieces launched per detonation. Takes blocks that were destroyed by an explosion and launches them instead of just setting it to air. This will NOT make the explosion bigger.          |
-| `detonationRadius` | float | `3.5` | Radius in blocks of each detonation. Controls how many blocks are destroyed per explosion.                                                                                                         |
+| Field                   | Type  | Default | Description                                                                                                                                                                                        |
+|-------------------------|-------|---------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `boredDepartTicks`      | int   | `900`   | Ticks the bored departure lasts before the ship despawns. Bored departure is when the ship patrols for the whole cycle and the captain is never killed. The timer pauses while a player is aboard. |
+| `emergencyDelayTicks`   | int   | `200`   | Ticks between the emergency alarm starting and the destruction sequence beginning. This is the player's window to escape or reach the helm safely.                                                 |
+| `detonationCount`       | int   | `12`    | Number of explosion detonation points spread through the ship. Bigger ships should use more.                                                                                                       |
+| `detonationMinInterval` | int   | `20`    | Minimum ticks between consecutive detonations.                                                                                                                                                     |
+| `detonationMaxInterval` | int   | `120`   | Maximum ticks between consecutive detonations. Each interval is randomized between min and max.                                                                                                    |
+| `debrisPerDetonation`   | int   | `4`     | Max debris pieces launched per detonation. Takes blocks that were destroyed by an explosion and launches them instead of just setting it to air. This will NOT make the explosion bigger.          |
+| `detonationRadius`      | float | `3.5`   | Radius in blocks of each detonation. Controls how many blocks are destroyed per explosion.                                                                                                         |
 ## Diagnostic ladder: tuning a new ship
 
 Getting a ship to orbit smoothly takes tuning. After your ship is integrated, turn on debug mode and run /hostileskies raidlog. Then follow this sequence:  
@@ -245,7 +256,8 @@ Let the ship run its full orbit and observe. Watch for:
 **`replaces` is a single pass.** Every loaded ship removes its target, even if that ship itself is replaced by a third. So if A replaces B which replaces C, only A survives.  
 Also, make sure to use the namespace of the ship you're replacing. If you wanted to replace my default Karve, you would write `"replaces": "hostile_skies:karve_t1"`. If you just wrote `"replaces": "karve_t1"` instead, it would resolve to your datapack's namespace.
 
-**Crew warning:** Undead crew still burn in daylight, some mobs won't survive a Nether ship, and enemy factions may attack each other. Pick crews that make sense for where the ship flies.
+**Crew warning:** Mobs are not protected. Undead crew still burn in daylight, and enemy factions may attack each other. Pick crews that make sense for where the ship flies.
+Also, when picking ranged weapons for mobs, make sure they are able to shoot it. e.g, Zombies can't use bows because it's not in their vanilla AI behavior.
 
 **Rudder type affects diagnostics.** Ships using swivel bearings show a rudder angle in the nav diagnostics. Ships using other bearing types (mechanical bearings, etc.) will show `rudder=NaN`. 
 The diagnostics only check swivel bearings because they need to be disassembled before despawn to prevent stray rudder entities.

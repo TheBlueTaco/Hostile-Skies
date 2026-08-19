@@ -2,6 +2,9 @@
   "name": "New Ship",
   "tier": 1,
   "structure": "newship_t1",
+  "requiredmods": [],
+  "replaces": "hostile_skies:karve_t1",
+  "dimensions": ["minecraft:overworld"],
 
   "controls": {
     "lift": {
@@ -22,11 +25,20 @@
     "minAltitudeAboveSea": 60
   },
 
+  "departure": {
+    "emergencyDelayTicks": 200,
+    "detonationCount": 7,
+    "detonationMinInterval": 15,
+    "detonationMaxInterval": 90,
+    "detonationRadius": 3.0,
+    "debrisPerDetonation": 4
+  },
+
   "crew": {
-    "captain": 1,
-    "pillagers": 1,
-    "vindicators": 0,
-    "captainWeapon": "minecraft:diamond_sword"
+    "captainMob": "minecraft:pillager",
+    "captainWeapon": "minecraft:wooden_sword",
+    "captainEnchantments": { "minecraft:fire_aspect": 1 },
+    "mobs": [{ "mob": "minecraft:skeleton", "count": 1, "weapon": "minecraft:bow", "enchantments": { "minecraft:smite": 15, "minecraft:sharpness":  13} }]
   },
 
   "loot": {

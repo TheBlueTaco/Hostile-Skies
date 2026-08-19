@@ -192,7 +192,9 @@ public class ShipRegistry extends SimpleJsonResourceReloadListener {
                         id, entry.mob, entry.count);
                 return false;
             }
+            if (!validEnchantments(id, entry.enchantments, entry.mob)) return false;
         }
+        if (!validEnchantments(id, crew.captainEnchantments, "captain")) return false;
         return true;
     }
 
@@ -200,5 +202,22 @@ public class ShipRegistry extends SimpleJsonResourceReloadListener {
         ResourceLocation rl = ResourceLocation.tryParse(id);
         if (rl == null || !BuiltInRegistries.ENTITY_TYPE.containsKey(rl)) return null;
         return BuiltInRegistries.ENTITY_TYPE.get(rl);
+    }
+
+    private static boolean validEnchantments(ResourceLocation shipId, Map<String, Integer> enchantments, String context) {
+        if (enchantments == null) return true;
+        for (Map.Entry<String, Integer> entry : enchantments.entrySet()) {
+            if (ResourceLocation.tryParse(entry.getKey()) == null) {
+                HostileSkies.LOGGER.error("Ship '{}' has an invalid enchantment id '{}'. Register it correctly! :P",
+                        shipId, entry.getKey(), context);
+                return false;
+            }
+            if (entry.getValue() < 1) {
+                HostileSkies.LOGGER.error("Ship '{}' enchantment '{}' on {} has level {}. (must be >= 1)",
+                        shipId, entry.getKey(), context, entry.getValue());
+                return false;
+            }
+        }
+        return true;
     }
 }
