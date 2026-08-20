@@ -15,6 +15,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -49,10 +50,17 @@ public class HostileSkies {
 
     /** Debug logging toggle. Toggled at runtime via /hostileskies raidlog. */
     public static boolean debugLogging = false;
+    private static MinecraftServer server;
 
-    /** Logs a message only when debug logging is enabled. */
+    /** Logs to console. Additionally broadcasts to chat if the config is on. */
     public static void debug(String msg, Object... args) {
-        if (debugLogging) LOGGER.info(msg, args);
+        String formatted = org.slf4j.helpers.MessageFormatter.arrayFormat(msg, args).getMessage();
+        LOGGER.info(formatted);
+        if (RaidConfig.debugChatMessages.get() && server != null) {
+            for (ServerPlayer p : server.getPlayerList().getPlayers()) {
+                p.sendSystemMessage(Component.literal("\u00a77[Raid Debug] " + formatted));
+            }
+        }
     }
 
     public HostileSkies(IEventBus modEventBus, ModContainer modContainer) {
@@ -115,13 +123,15 @@ public class HostileSkies {
 
     @SubscribeEvent
     public void onServerTick(ServerTickEvent.Post event) {
-        RaidManager.tick(event.getServer());
-        RaidSpawnSystem.tick(event.getServer());
+        server = event.getServer();
+        RaidManager.tick(server);
+        RaidSpawnSystem.tick(server);
     }
 
     @SubscribeEvent
     public void onServerStopping(ServerStoppingEvent event) {
         RaidManager.onServerStopping(event.getServer());
+        server = null;
     }
 
     @SubscribeEvent

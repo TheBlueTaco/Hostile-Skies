@@ -1268,10 +1268,10 @@ public class RaidManager {
         boolean playerAboard = isPlayerAboard(raid.level, sl);
         if (playerAboard) raid.engaged = true;
         if (playerAboard && !raid.playerAboardLastTick) {
-            debugMessage(raid, "Player detected aboard, pausing patrol timer");
+            HostileSkies.debug("Player detected aboard, pausing patrol timer");
         } else if (!playerAboard && raid.playerAboardLastTick) {
-            debugMessage(raid, "Player left, resuming patrol timer. (" +
-                    (raid.patrolTicksRemaining / 20) + "s remaining)");
+            HostileSkies.debug("Player left, resuming patrol timer. ({} s remaining)",
+                    (raid.patrolTicksRemaining / 20));
         }
         raid.playerAboardLastTick = playerAboard;
 
@@ -1443,7 +1443,7 @@ public class RaidManager {
 
         int limit = raid.ship.departure.boredDepartTicks;
         if (raid.departTicks % 100 == 0) {
-            debugMessage(raid, "Departing: " + (raid.departTicks / 20) + "s / " + (limit / 20) + "s");
+            HostileSkies.debug("Departing: {}s / {}s", (raid.departTicks / 20), (limit / 20));
         }
 
         raid.navigator.tickDepartBored(sl);
@@ -1669,14 +1669,7 @@ public class RaidManager {
     private static void transition(TrackedRaid raid, RaidPhase phase, String reason) {
         HostileSkies.LOGGER.info("Raid {} -> {} ({})", raid.subLevelId, phase, reason);
         raid.phase = phase;
-        debugMessage(raid, "Phase: " + phase + " (" + reason + ")");
-    }
-
-    private static void debugMessage(TrackedRaid raid, String message) {
-        if (!RaidConfig.debugChatMessages.get()) return;
-        for (ServerPlayer p : raid.level.players()) {
-            p.sendSystemMessage(Component.literal("\u00a77[Raid Debug] " + message));
-        }
+        HostileSkies.debug("Phase: {} ({})", phase, reason);
     }
 
     private static Vector3d toVec(Vec3 v) { return new Vector3d(v.x, v.y, v.z); }

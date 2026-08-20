@@ -38,7 +38,7 @@ public class RaidSpawnSystem {
         }
 
         data.setLastSpawnAttemptTick(currentTick);
-        HostileSkies.LOGGER.info("Spawn attempt at tick {} (chance {}%)",
+        HostileSkies.debug("Spawn attempt at tick {} (chance {}%)",
                 currentTick, String.format("%.1f", data.getCurrentSpawnChance()));
         attemptSpawn(server, data, currentTick);
     }

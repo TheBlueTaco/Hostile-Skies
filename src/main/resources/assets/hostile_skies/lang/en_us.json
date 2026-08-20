@@ -22,7 +22,7 @@
 
   "hostile_skies.configuration.enableRaidSpawns": "Enable Raid Spawns",
   "hostile_skies.configuration.enableShipCapture": "Enable Ship Capture",
-  "hostile_skies.configuration.debugChatMessages": "Debug Messages",
+  "hostile_skies.configuration.debugChatMessages": "Debug Messages in Chat",
 
   "hostile_skies.configuration.spawnAttemptInterval": "Spawn Interval (minutes)",
   "hostile_skies.configuration.spawnChanceBase": "Base Spawn Chance (%)",

@@ -234,7 +234,7 @@ public class ShipNavigator {
         runAvoidanceAndLevers(sl, t);
         steerToCarrot(sl, t);
 
-        if (ticksActive % PATROL_LOG_INTERVAL == 0) {
+        if (ticksActive % PATROL_LOG_INTERVAL == 0 && HostileSkies.debugLogging) {
             HostileSkies.debug(
                     "[Nav] patrol r={} (target {}) y={} spd={} b/s whl={} trim={}",
                     String.format("%.1f", t.distToCenter),
