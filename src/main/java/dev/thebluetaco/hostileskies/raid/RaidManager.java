@@ -1140,7 +1140,7 @@ public class RaidManager {
     }
 
     /** Activates captain combat AI and marks the raid as engaged. */
-    public static void activateCaptain(PathfinderMob captain) {
+    public static void activateCaptain(PathfinderMob captain, Player attacker) {
         for (String tag : captain.getTags()) {
             if (tag.startsWith(CAPTAIN_RAID_PREFIX)) {
                 try {
@@ -1161,6 +1161,10 @@ public class RaidManager {
         boolean wasSeated = captain.isPassenger();
         captain.stopRiding();
 
+        HostileSkies.LOGGER.info("Activation: captain at ({}, {}, {}), lastHurtBy at {}",
+                (int) captain.getX(), (int) captain.getY(), (int) captain.getZ(),
+                captain.getLastHurtByMob() != null ? captain.getLastHurtByMob().position() : "null");
+
         // Nudge away from the seat block so the captain doesn't immediately sit back down
         if (wasSeated) {
             Vec3 look = captain.getLookAngle();
@@ -1173,13 +1177,14 @@ public class RaidManager {
         captain.goalSelector.removeAllGoals(g -> true);
 
         captain.goalSelector.addGoal(0, new net.minecraft.world.entity.ai.goal.FloatGoal(captain));
-        captain.goalSelector.addGoal(3, new net.minecraft.world.entity.ai.goal.MeleeAttackGoal(captain, 0.7, false));
+        captain.goalSelector.addGoal(3, new net.minecraft.world.entity.ai.goal.MeleeAttackGoal(captain, 0.7, true));
         captain.goalSelector.addGoal(8, new net.minecraft.world.entity.ai.goal.RandomStrollGoal(captain, 0.6));
         captain.goalSelector.addGoal(9, new net.minecraft.world.entity.ai.goal.LookAtPlayerGoal(captain, Player.class, 15.0F, 1.0F));
 
         captain.targetSelector.addGoal(1, new net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal(captain));
         captain.targetSelector.addGoal(2, new net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal<>(captain, Player.class, true));
 
+        captain.setTarget(attacker);
         HostileSkies.LOGGER.info("Captain activated! Combat AI enabled.");
     }
 

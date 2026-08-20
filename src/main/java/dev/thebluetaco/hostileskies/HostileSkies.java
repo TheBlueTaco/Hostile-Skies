@@ -139,8 +139,8 @@ public class HostileSkies {
         if (event.getEntity() instanceof PathfinderMob captain
                 && captain.getTags().contains(RaidManager.CAPTAIN_TAG)) {
             LOGGER.info("Captain hit! Source: {}", event.getSource().getEntity());
-            if (event.getSource().getEntity() instanceof Player) {
-                RaidManager.activateCaptain(captain);
+            if (event.getSource().getEntity() instanceof Player attacker) {
+                RaidManager.activateCaptain(captain, attacker);
             }
         }
     }
