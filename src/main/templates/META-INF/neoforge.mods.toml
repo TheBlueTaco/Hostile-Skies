@@ -9,7 +9,7 @@ displayName = "${mod_name}"
 #updateJSONURL = ""
 displayURL = "https://modrinth.com/mod/create-hostile-skies"
 logoFile = "hostile_skies_logo.png"
-credits = "Thanks to Vorteks47 for help building the ships, and Marume for the logo"
+credits = "Thanks to Vorteks47 for help building the ships, and Marume for the logo. Also, thanks to Corvinoo from 'Aeronautics Discovery' for the inspiration on the emergency departure system."
 authors = "TheBlueTaco"
 description = '''
 Adds pillager themed airship encounters to your world.

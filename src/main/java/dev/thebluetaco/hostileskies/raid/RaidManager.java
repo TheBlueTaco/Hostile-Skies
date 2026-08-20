@@ -6,6 +6,7 @@ import dev.eriksonn.aeronautics.content.blocks.hot_air.hot_air_burner.HotAirBurn
 import dev.eriksonn.aeronautics.content.blocks.hot_air.lifting_gas.LiftingGasData;
 import dev.eriksonn.aeronautics.content.blocks.hot_air.lifting_gas.LiftingGasHolder;
 import dev.ryanhcode.sable.api.physics.handle.RigidBodyHandle;
+import dev.ryanhcode.sable.mixinterface.entity.entities_stick_sublevels.EntityStickExtension;
 import dev.ryanhcode.sable.api.sublevel.ServerSubLevelContainer;
 import dev.ryanhcode.sable.api.sublevel.SubLevelContainer;
 import dev.ryanhcode.sable.companion.math.BoundingBox3dc;
@@ -404,6 +405,18 @@ public class RaidManager {
             if (raid.evicted && !isDeparting(raid.phase) && raid.phase != RaidPhase.CAPTURED) {
                 if (raid.phase == RaidPhase.MERCY) restoreNormalControls(raid, ssl);
                 beginBoredDeparture(raid, ssl, "evicted for capacity");
+            }
+
+            // Release crew from sub-level pin after init settles
+            if (!raid.stuckCrewEntities.isEmpty()) {
+                raid.crewStickTicks--;
+                if (raid.crewStickTicks <= 0) {
+                    HostileSkies.debug("Released {} crew from sub-level pin", raid.stuckCrewEntities.size());
+                    for (Mob mob : raid.stuckCrewEntities) {
+                        ((EntityStickExtension) mob).sable$setPlotPosition(null);
+                    }
+                    raid.stuckCrewEntities.clear();
+                }
             }
 
             int ticksAlive = currentTick - raid.spawnTick;
@@ -964,6 +977,14 @@ public class RaidManager {
                 if (crew == null) continue;
                 crew.setPos(seatWorld.x, seatWorld.y + 1.0, seatWorld.z);
                 raid.level.addFreshEntity(crew);
+
+                Vec3 crewPlotPos = new Vec3(
+                        seatPlot.getX() + raid.plotOffset.getX() + 0.5,
+                        seatPlot.getY() + raid.plotOffset.getY() + 1.0,
+                        seatPlot.getZ() + raid.plotOffset.getZ() + 0.5);
+                ((EntityStickExtension) crew).sable$setPlotPosition(crewPlotPos);
+                raid.stuckCrewEntities.add(crew);
+
                 HostileSkies.debug("Spawned {} {}/{}: plot={}", entry.mob, i + 1, toSpawn, seatPlot);
             }
         }
@@ -1037,8 +1058,7 @@ public class RaidManager {
                 wheelStructPos.getX() + raid.plotOffset.getX() + 0.5,
                 wheelStructPos.getY() + raid.plotOffset.getY(),
                 wheelStructPos.getZ() + raid.plotOffset.getZ() + 0.5);
-        ((dev.ryanhcode.sable.mixinterface.entity.entities_stick_sublevels.EntityStickExtension) chains)
-                .sable$setPlotPosition(plotPos);
+        ((EntityStickExtension) chains).sable$setPlotPosition(plotPos);
 
         raid.chainEntity = chains;
         // Wheel lock uses plot-absolute position
@@ -1702,6 +1722,10 @@ public class RaidManager {
         Quaterniond holdRot = null;
         Vector3d lastKnownPos = null;
         Quaterniond lastKnownRot = null;
+
+        /** Crew pinned to the sub-level during init to prevent falling through. Cleared after crewStickTicks. */
+        List<Mob> stuckCrewEntities = new ArrayList<>();
+        int crewStickTicks = 15;
 
         /** True once a player has boarded, died aboard, or hit the captain. */
         boolean engaged = false;
