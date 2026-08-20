@@ -1161,10 +1161,6 @@ public class RaidManager {
         boolean wasSeated = captain.isPassenger();
         captain.stopRiding();
 
-        HostileSkies.LOGGER.info("Activation: captain at ({}, {}, {}), lastHurtBy at {}",
-                (int) captain.getX(), (int) captain.getY(), (int) captain.getZ(),
-                captain.getLastHurtByMob() != null ? captain.getLastHurtByMob().position() : "null");
-
         // Nudge away from the seat block so the captain doesn't immediately sit back down
         if (wasSeated) {
             Vec3 look = captain.getLookAngle();
