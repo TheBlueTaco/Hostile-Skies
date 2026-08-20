@@ -19,7 +19,7 @@
   },
 
   "departure": {
-    "emergencyDelayTicks": 120,
+    "emergencyDelayTicks": 200,
     "detonationCount": 8,
     "detonationMinInterval": 5,
     "detonationMaxInterval": 40,

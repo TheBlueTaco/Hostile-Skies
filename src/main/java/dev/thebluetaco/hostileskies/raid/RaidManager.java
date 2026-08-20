@@ -59,6 +59,7 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.util.Mth;
+import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.event.EventHooks;
 import org.joml.Quaterniond;
 import org.joml.Vector3d;
@@ -1205,6 +1206,11 @@ public class RaidManager {
             BlockEntity be = acc.getBlockEntity(pos);
             if (be == null) continue;
 
+            // Aero Burner Fuel compat
+            if (ModList.get().isLoaded("createburnerfuel")) {
+                tryFillAeroBurnerFuel(be, pos);
+            }
+
             Balloon balloon = null;
             if (be instanceof HotAirBurnerBlockEntity burner) {
                 balloon = burner.getBalloon();
@@ -1480,14 +1486,14 @@ public class RaidManager {
 
         // After the countdown, start or tick the destruction chain
         if (raid.departTicks >= raid.ship.departure.emergencyDelayTicks) {
-            if (sl instanceof ServerSubLevel ssl) {
-                disassembleSwivels(ssl, raid.structureSize);
-            }
             if (!RaidConfig.enableExplosions.get()) {
                 // if explosions disabled just wait 20 seconds and despawn
                 return raid.departTicks >= raid.ship.departure.emergencyDelayTicks + 400;
             }
             if (raid.destructionSequence == null) {
+                if (sl instanceof ServerSubLevel ssl) {
+                    disassembleSwivels(ssl, raid.structureSize);
+                }
                 raid.destructionSequence = new DestructionSequence(
                         raid.level, raid.structureSize, raid.plotOffset);
                 raid.destructionSequence.ignite(
@@ -1589,6 +1595,17 @@ public class RaidManager {
                     effField.setAccessible(true);
                     effField.setDouble(be, 1.0);
                 } catch (Exception ignored) {}
+            }
+        }
+    }
+
+    private static void tryFillAeroBurnerFuel(BlockEntity be, BlockPos pos) {
+        if (be instanceof com.create_aeronauticsad.burnefuelmod.FuelledBurnerAccess fuelled) {
+            if (fuelled.createburnerfuel$getFuelInventory().getStackInSlot(0).isEmpty()) {
+                net.minecraft.world.item.ItemStack coal = new net.minecraft.world.item.ItemStack(
+                        net.minecraft.world.item.Items.COAL, 10);
+                fuelled.createburnerfuel$getFuelInventory().insertItem(0, coal, false);
+                HostileSkies.debug("Aero burner fuel slot filled at {}", pos);
             }
         }
     }
