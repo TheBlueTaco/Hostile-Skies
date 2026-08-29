@@ -81,7 +81,6 @@ public class RaidManager {
     private static final int MAX_INIT_TICKS = 200;
     private static final int INIT_SETTLE_TICKS = 3;
     private static final int CREW_SETTLE_TICKS = 10;
-    private static final int PATROL_TICKS = 14 * 60 * 20;
     private static final int BORED_SECOND_BUMP_TICKS = 10 * 20;
     private static final int EMERGENCY_BELL_INTERVAL = 20;
     private static final int VENT_MIN_INTERVAL = 3 * 20;
@@ -1277,7 +1276,7 @@ public class RaidManager {
         if (playerAboard && !raid.playerAboardLastTick) {
             HostileSkies.debug("Player detected aboard, pausing patrol timer");
         } else if (!playerAboard && raid.playerAboardLastTick) {
-            HostileSkies.debug("Player left, resuming patrol timer. ({} s remaining)",
+            HostileSkies.debug("Player left, resuming patrol timer. ({}s remaining)",
                     (raid.patrolTicksRemaining / 20));
         }
         raid.playerAboardLastTick = playerAboard;
@@ -1719,7 +1718,7 @@ public class RaidManager {
         BlockPos lockedWheelPos = null;
 
         RaidPhase phase = RaidPhase.INITIALIZING;
-        int patrolTicksRemaining = PATROL_TICKS;
+        int patrolTicksRemaining = RaidConfig.patrolTimeTicks();
         boolean playerAboardLastTick = false;
 
         /** False while unloaded; reload rearms steam bridge and tops off fuel. */

@@ -18,6 +18,7 @@ public class RaidConfig {
     public static final ModConfigSpec.DoubleValue spawnChanceIncrement;
     public static final ModConfigSpec.DoubleValue spawnChanceMax;
     public static final ModConfigSpec.DoubleValue spawnChanceBlockedIncrement;
+    public static final ModConfigSpec.IntValue patrolTimeMinutes;
 
     // Multiplayer
     public static final ModConfigSpec.IntValue maxActiveRaids;
@@ -90,6 +91,10 @@ public class RaidConfig {
         spawnAttemptIntervalMinutes = builder
                 .comment("Minutes between spawn attempts")
                 .defineInRange("spawnAttemptInterval", 15, 1, 120);
+
+        patrolTimeMinutes = builder
+                .comment("Minutes the raid will patrol for until they get bored and leave.")
+                .defineInRange("patrolTimeMinutes", 14, 1, 60);
 
         spawnChanceBase = builder
                 .comment("Starting spawn chance (%) on first attempt")
@@ -264,6 +269,10 @@ public class RaidConfig {
 
     public static int spawnAttemptIntervalTicks() {
         return spawnAttemptIntervalMinutes.get() * 60 * 20;
+    }
+
+    public static int patrolTimeTicks() {
+        return patrolTimeMinutes.get() * 60 * 20;
     }
 
     public static int personalCooldownTicks() {

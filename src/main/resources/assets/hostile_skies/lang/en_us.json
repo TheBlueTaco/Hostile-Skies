@@ -25,6 +25,7 @@
   "hostile_skies.configuration.debugChatMessages": "Debug Messages in Chat",
 
   "hostile_skies.configuration.spawnAttemptInterval": "Spawn Interval (minutes)",
+  "hostile_skies.configuration.patrolTimeMinutes": "Patrol time (minutes)",
   "hostile_skies.configuration.spawnChanceBase": "Base Spawn Chance (%)",
   "hostile_skies.configuration.spawnChanceIncrement": "Chance Increment Per Fail (%)",
   "hostile_skies.configuration.spawnChanceMax": "Maximum Spawn Chance (%)",
