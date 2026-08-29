@@ -42,3 +42,4 @@ for details.
 - The Creators of Create, Sable, and Aeronautics
 - Vorteks47 for help building the ships
 - Marume for making the logo
+- Corvinhoo for inspiration on the despawning system
