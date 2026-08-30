@@ -1,5 +1,6 @@
 {
   "item.hostile_skies.captains_orders": "Captain's Orders",
+  "item.hostile_skies.peace_treaty": "Peace Treaty",
   "entity.hostile_skies.helm_chains": "Helm Chains",
   "hostile_skies.configuration.general": "General",
   "hostile_skies.configuration.general.tooltip": "Master switches for raid encounters and ship capture",

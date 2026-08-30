@@ -50,6 +50,15 @@ public class RaidSavedData extends SavedData {
         setDirty();
     }
 
+    public void resetCaptainKills(UUID playerId) {
+        if (RaidConfig.perPlayerKillTracking.get()) {
+            captainKills.remove(playerId);
+        } else {
+            serverWideKills = 0;
+        }
+        setDirty();
+    }
+
     /** Returns the highest tier unlocked by the given kill count. */
     public int getHighestUnlockedTier(int kills) {
         int tier = 0;

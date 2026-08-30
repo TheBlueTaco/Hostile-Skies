@@ -23,8 +23,12 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.PathfinderMob;
+import net.minecraft.world.entity.npc.VillagerProfession;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.trading.ItemCost;
+import net.minecraft.world.item.trading.MerchantOffer;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
@@ -41,7 +45,9 @@ import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
+import net.neoforged.neoforge.event.village.VillagerTradesEvent;
 import org.slf4j.Logger;
+import java.util.Optional;
 
 @Mod(HostileSkies.MODID)
 public class HostileSkies {
@@ -189,6 +195,21 @@ public class HostileSkies {
         // Player death aboard raid ship triggers mercy
         if (event.getEntity() instanceof ServerPlayer player) {
             RaidManager.onPlayerDeath(player);
+        }
+    }
+
+    @SubscribeEvent
+    public void onVillagerTrades(VillagerTradesEvent event) {
+        if (event.getType() == VillagerProfession.LIBRARIAN) {
+            event.getTrades().get(1).add((trader, random) ->
+                    new MerchantOffer(
+                            new ItemCost(Items.EMERALD, 32),
+                            Optional.of(new ItemCost(Items.DIAMOND, 3)),
+                            new ItemStack(ModItems.PEACE_TREATY.get()),
+                            1,
+                            30,
+                            0.20f
+                    ));
         }
     }
 
