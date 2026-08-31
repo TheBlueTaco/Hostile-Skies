@@ -1099,6 +1099,12 @@ public class RaidManager {
     private static void applyLootMultiplier(TrackedRaid raid, ServerSubLevel sl) {
         if (raid.badOmenLevel <= 0 || raid.lootContainerPositions.isEmpty()) return;
 
+        // Force filling chests conflicts with lootr instancing. May revisit someday
+        if (HostileSkies.isLootrLoaded()) {
+            HostileSkies.debug("Lootr detected. Unable to run loot multiplier currently.");
+            return;
+        }
+
         double multiplier = RaidConfig.badOmenLootMultiplier(raid.badOmenLevel);
         if (multiplier <= 1.0) return;
 

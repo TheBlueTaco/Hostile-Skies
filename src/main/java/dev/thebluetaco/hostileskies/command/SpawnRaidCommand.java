@@ -17,6 +17,7 @@ import dev.simulated_team.simulated.content.blocks.steering_wheel.SteeringWheelB
 import dev.simulated_team.simulated.content.blocks.portable_engine.PortableEngineBlockEntity;
 import dev.simulated_team.simulated.content.blocks.throttle_lever.ThrottleLeverBlockEntity;
 import dev.thebluetaco.hostileskies.HostileSkies;
+import dev.thebluetaco.hostileskies.compat.LootrCompat;
 import dev.thebluetaco.hostileskies.raid.RaidManager;
 import dev.thebluetaco.hostileskies.ship.ShipRegistry;
 import dev.thebluetaco.hostileskies.ship.ShipTemplate;
@@ -309,7 +310,14 @@ public class SpawnRaidCommand {
 
                     if (be instanceof RandomizableContainerBlockEntity lootContainer) {
                         boolean isCaptain = captainKey != null && ship.isCaptainChest(pos);
-                        lootContainer.setLootTable(isCaptain ? captainKey : lootKey);
+                        ResourceKey<LootTable> tableKey = isCaptain ? captainKey : lootKey;
+
+                        if (HostileSkies.isLootrLoaded()) {
+                            LootrCompat.convertContainer(accessor, pos, tableKey);
+                        } else {
+                            lootContainer.setLootTable(tableKey);
+                        }
+
                         lootContainerPositions.add(pos.immutable());
                         lootCount++;
                     }

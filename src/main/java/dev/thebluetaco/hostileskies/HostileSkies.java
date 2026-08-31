@@ -79,6 +79,15 @@ public class HostileSkies {
         }
         LOGGER.info("Create Hostile Skies loading");
     }
+    private static Boolean lootrLoaded = null;
+
+    public static boolean isLootrLoaded() {
+        if (lootrLoaded == null) {
+            lootrLoaded = net.neoforged.fml.ModList.get().isLoaded("lootr");
+            if (lootrLoaded) HostileSkies.debug("Lootr detected. Enabled lootr chests for raid ships");
+        }
+        return lootrLoaded;
+    }
 
     @SubscribeEvent
     public void onAddReloadListeners(AddReloadListenerEvent event) {
