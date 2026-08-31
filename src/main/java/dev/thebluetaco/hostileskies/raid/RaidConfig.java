@@ -80,6 +80,10 @@ public class RaidConfig {
                 .comment("Broadcast raid debug messages in chat")
                 .define("debugChatMessages", false);
 
+        patrolTimeMinutes = builder
+                .comment("Minutes the raid will patrol for until they get bored and leave.")
+                .defineInRange("patrolTimeMinutes", 14, 1, 60);
+
         builder.pop();
 
         // Spawn timing
@@ -92,21 +96,17 @@ public class RaidConfig {
                 .comment("Minutes between spawn attempts")
                 .defineInRange("spawnAttemptInterval", 15, 1, 120);
 
-        patrolTimeMinutes = builder
-                .comment("Minutes the raid will patrol for until they get bored and leave.")
-                .defineInRange("patrolTimeMinutes", 14, 1, 60);
-
         spawnChanceBase = builder
                 .comment("Starting spawn chance (%) on first attempt")
                 .defineInRange("spawnChanceBase", 10.0, 0.0, 100.0);
 
-        spawnChanceIncrement = builder
-                .comment("Added to spawn chance (%) after each failed roll")
-                .defineInRange("spawnChanceIncrement", 4.0, 0.0, 100.0);
-
         spawnChanceMax = builder
                 .comment("Maximum spawn chance (%) Never exceeds this")
                 .defineInRange("spawnChanceMax", 50.0, 0.0, 100.0);
+
+        spawnChanceIncrement = builder
+                .comment("Added to spawn chance (%) after each failed roll")
+                .defineInRange("spawnChanceIncrement", 4.0, 0.0, 100.0);
 
         spawnChanceBlockedIncrement = builder
                 .comment("Spawn chance increment (%) when blocked (max raids or no eligible groups).",

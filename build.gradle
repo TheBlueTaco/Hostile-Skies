@@ -40,6 +40,10 @@ repositories {
         name = "Registrate"
         url = "https://maven.ithundxr.dev/snapshots"
     }
+    maven {
+        url = 'https://maven.blamejared.com'
+        content { includeGroup 'noobanidus.mods.lootr' }
+    }
 }
 
 base {
@@ -165,8 +169,9 @@ dependencies {
     compileOnly("dev.engine-room.flywheel:flywheel-neoforge-api-1.21.1:1.0.6")
     compileOnly("net.createmod.ponder:ponder-neoforge:1.0.82+mc1.21.1")
 
-    // Burner fuel mod for compatibility
+    // Compatibility mods
     compileOnly files("libs/createburnerfuel-1.0.2.jar")
+    compileOnly "noobanidus.mods.lootr:lootr-neoforge:1.21.1-1.11.37.120"
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.
