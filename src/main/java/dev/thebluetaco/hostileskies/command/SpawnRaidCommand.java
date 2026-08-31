@@ -61,7 +61,7 @@ public class SpawnRaidCommand {
                 .then(Commands.argument("ship", ResourceLocationArgument.id())
                         .suggests(SHIP_SUGGESTIONS)
                         .executes(SpawnRaidCommand::executeNamed)
-                        .then(Commands.argument("omen", IntegerArgumentType.integer(0, 3))
+                        .then(Commands.argument("omen", IntegerArgumentType.integer(0, 10))
                                 .executes(SpawnRaidCommand::executeNamedWithOmen))));
 
         root.then(Commands.literal("stopraid")
