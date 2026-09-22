@@ -1,0 +1,59 @@
+{
+  "name": "Graf",
+  "tier": 2,
+  "structure": "graf_t2",
+  "dimensions": ["minecraft:overworld"],
+
+  "controls": {
+    "lift": {
+      "signal": 8,
+      "levers": [[17, 3, 16]]
+    },
+    "throttle": {
+      "signal": 9,
+      "mercySignal": 4,
+      "levers": [[17, 3, 12]]
+    }
+  },
+
+  "navigation": {
+    "terrainMargin": 8.0,
+    "liftBoostMax": 2,
+    "unstickThrottleSignal": 15
+  },
+
+  "spawning": {
+    "spawnDistance": 75,
+    "circleRadius": 105,
+    "terrainClearance": 45,
+    "minAltitudeAboveSea": 65
+  },
+
+  "departure": {
+    "boredDepartTicks": 2000,
+    "emergencyDelayTicks": 300,
+    "detonationCount": 16,
+    "detonationMinInterval": 5,
+    "detonationMaxInterval": 45,
+    "detonationRadius": 4.5,
+    "debrisPerDetonation": 15
+  },
+
+  "crew": {
+    "captainMob": "minecraft:pillager",
+    "captainWeapon": "minecraft:iron_axe",
+    "mobs": [{ "mob": "minecraft:pillager", "count": 6 }, { "mob": "minecraft:vindicator", "count": 4 }],
+    "captainSpawns": [[18, 3, 14]],
+    "crewSpawns": [[20, 3, 14], [44, 3, 14], [26, 9, 14], [37, 9, 14]]
+  },
+
+  "loot": {
+    "containerTable": "hostile_skies:chests/tier2_ship",
+    "captainTable": "hostile_skies:chests/captains_chest",
+    "captainChest": [21, 2, 12]
+  },
+
+  "notes": [
+    ""
+  ]
+}
