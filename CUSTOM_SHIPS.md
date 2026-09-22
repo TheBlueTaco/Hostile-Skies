@@ -215,13 +215,13 @@ All departure fields are optional. Defaults work for most ships without any `dep
 
 Getting a ship to orbit smoothly takes tuning. After your ship is integrated, turn on debug mode and run /hostileskies raidlog. Then follow this sequence:  
 
-Again, I want to warn you that this **ONLY WORKS FOR BALLOON AND RUDDER BASED SHIPS** right now.
+Again, I want to warn you that this **ONLY WORKS FOR BALLOON BASED SHIPS** right now.
 
 ### 1. Sense check
 
 ```
-/hostileskies spawnraid <namespace:ship_id>
 /hostileskies shipnav sense
+/hostileskies spawnraid <namespace:ship_id>
 ```
 
 Spawn the ship and verify: the rudder should be straight on spawn (turn rate near 0), and the ship should be moving at a steady cruise speed. Note the cruise speed.

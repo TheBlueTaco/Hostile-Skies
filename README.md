@@ -43,3 +43,7 @@ for details.
 - Vorteks47 for help building the ships
 - Marume for making the logo
 - Corvinhoo for inspiration on the despawning system
+
+### Ship Credits
+- Rheo - Sky Reaver
+- Hawkc08 - Graf
