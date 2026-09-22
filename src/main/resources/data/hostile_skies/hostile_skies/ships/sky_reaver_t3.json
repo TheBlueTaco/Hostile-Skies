@@ -1,0 +1,68 @@
+{
+  "name": "Sky Reaver",
+  "tier": 3,
+  "structure": "sky_reaver_t3",
+  "dimensions": ["minecraft:overworld"],
+
+  "controls": {
+    "lift": {
+      "signal": 8,
+      "levers": [[54, 40, 22]]
+    },
+    "throttle": {
+      "signal": 8,
+      "mercySignal": 5,
+      "levers": [[54, 40, 20]]
+    }
+  },
+
+  "navigation": {
+    "headingKp": 0.4,
+    "headingKd": 2.0,
+    "headingKi": 0.03,
+    "carrotLeadDeg": 45.0,
+    "steerCadenceTicks": 25,
+    "terrainMargin": 8.0,
+    "liftBoostMax": 2,
+    "unstickThrottleSignal": 15,
+    "stuckSeconds": 10,
+    "stuckSpeedThreshold": 0.03
+  },
+
+  "spawning": {
+    "spawnDistance": 75,
+    "circleRadius": 90,
+    "terrainClearance": 100,
+    "minAltitudeAboveSea": 80
+  },
+
+  "departure": {
+    "boredDepartTicks": 2000,
+    "emergencyDelayTicks": 300,
+    "detonationCount": 40,
+    "detonationMinInterval": 2,
+    "detonationMaxInterval": 30,
+    "detonationRadius": 4.5,
+    "debrisPerDetonation": 20
+  },
+
+  "crew": {
+    "captainMob": "minecraft:pillager",
+    "captainWeapon": "minecraft:diamond_sword",
+    "captainEnchantments": { "minecraft:sharpness": 3 },
+    "mobs": [{ "mob": "minecraft:pillager", "count": 2, "weapon": "minecraft:crossbow", "enchantments": {"minecraft:quick_charge": 5} }, { "mob": "minecraft:evoker", "count": 2 }, { "mob": "minecraft:vindicator", "count": 6 },
+      { "mob": "minecraft:pillager", "count": 2 }, { "mob": "minecraft:vindicator", "count": 2, "weapon": "create:wrench", "enchantments": {"minecraft:sharpness": 5} }],
+    "captainSpawns": [[55, 40, 21]],
+    "crewSpawns": [[67, 41, 26], [67, 41, 16], [69, 10, 15], [69, 10, 28], [69, 15, 15], [69, 15, 28], [69, 24, 21], [67, 29, 22], [67, 29, 20], [66, 36, 21], [65, 24, 22], [65, 24, 20], [72, 20, 16], [80, 40, 21]]
+  },
+
+  "loot": {
+    "containerTable": "hostile_skies:chests/tier3_SkyReaver",
+    "captainTable": "hostile_skies:chests/captains_chest",
+    "captainChest": [75, 20, 24]
+  },
+
+  "notes": [
+    "Remember to reset propellers before saving structure. Also tick freeze and choke water flow for auto engine start."
+  ]
+}
