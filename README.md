@@ -7,6 +7,9 @@
     <a href="https://modrinth.com/mod/create-hostile-skies">
         <img src="https://img.shields.io/modrinth/dt/create-hostile-skies?logo=modrinth&amp;label=&amp;suffix=%20&amp;style=flat&amp;color=242629&amp;labelColor=5CA424&amp;logoColor=1C1C1C" alt="Modrinth Download"/>
     </a>
+    <a href="https://www.curseforge.com/minecraft/mc-mods/create-hostile-skies">
+        <img src="https://img.shields.io/curseforge/dt/1629101?logo=curseforge&amp;label=&amp;suffix=%20&amp;style=flat&amp;color=242629&amp;labelColor=F16436&amp;logoColor=1C1C1C" alt="CurseForge Download"/>
+    </a>
 </div>
 
 Pillager airship raids for [Create](https://github.com/Creators-of-Create/Create) on NeoForge 1.21.1.
