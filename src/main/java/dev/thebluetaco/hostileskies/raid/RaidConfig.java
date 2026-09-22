@@ -155,13 +155,13 @@ public class RaidConfig {
                 .comment("Enable tier 1 ships (Scout)")
                 .define("enableTier1", true);
         enableTier2 = builder
-                .comment("Enable tier 2 ships (Skiff)")
+                .comment("Enable tier 2 ships (Patrol)")
                 .define("enableTier2", true);
         enableTier3 = builder
                 .comment("Enable tier 3 ships (Warship)")
                 .define("enableTier3", true);
         enableTier4 = builder
-                .comment("Enable tier 4 ships (Flagship")
+                .comment("Enable tier 4 ships (Flagship)")
                 .define("enableTier4", true);
 
         tier2UnlockKills = builder
@@ -179,16 +179,16 @@ public class RaidConfig {
 
         tier1Weight = builder
                 .comment("Tier 1 spawn weight")
-                .defineInRange("tier1Weight", 50, 0, 1000);
+                .defineInRange("tier1Weight", 35, 0, 1000);
         tier2Weight = builder
                 .comment("Tier 2 spawn weight")
                 .defineInRange("tier2Weight", 30, 0, 1000);
         tier3Weight = builder
                 .comment("Tier 3 spawn weight")
-                .defineInRange("tier3Weight", 15, 0, 1000);
+                .defineInRange("tier3Weight", 25, 0, 1000);
         tier4Weight = builder
                 .comment("Tier 4 spawn weight")
-                .defineInRange("tier4Weight", 5, 0, 1000);
+                .defineInRange("tier4Weight", 10, 0, 1000);
 
         builder.pop(); // weights
         builder.pop(); // tier_system
