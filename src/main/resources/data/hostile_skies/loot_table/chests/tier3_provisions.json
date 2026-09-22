@@ -1,0 +1,111 @@
+{
+  "type": "minecraft:chest",
+  "pools": [
+    {
+      "rolls": { "type": "minecraft:uniform", "min": 5.0, "max": 7.0 },
+      "entries": [
+        {
+          "type": "minecraft:item", "name": "minecraft:golden_carrot", "weight": 6,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 4.0, "max": 8.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "minecraft:spectral_arrow", "weight": 6,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 2.0, "max": 6.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "minecraft:firework_rocket", "weight": 6,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 3.0, "max": 10.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "minecraft:gunpowder", "weight": 6,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 10.0, "max": 15.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "minecraft:tnt", "weight": 4,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 1.0, "max": 3.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "create:blaze_cake", "weight": 4,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 1.0, "max": 3.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "minecraft:diamond_axe", "weight": 1,
+          "functions": [{ "function": "minecraft:set_damage", "damage": { "type": "minecraft:uniform", "min": 0.4, "max": 1.0 } },
+            { "function": "minecraft:enchant_with_levels", "levels": { "type": "minecraft:uniform", "min": 0.0, "max": 5.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "minecraft:diamond_sword", "weight": 1,
+          "functions": [{ "function": "minecraft:set_damage", "damage": { "type": "minecraft:uniform", "min": 0.4, "max": 1.0 } },
+            { "function": "minecraft:enchant_with_levels", "levels": { "type": "minecraft:uniform", "min": 0.0, "max": 5.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "minecraft:diamond_shovel", "weight": 1,
+          "functions": [{ "function": "minecraft:set_damage", "damage": { "type": "minecraft:uniform", "min": 0.4, "max": 1.0 } },
+            { "function": "minecraft:enchant_with_levels", "levels": { "type": "minecraft:uniform", "min": 0.0, "max": 5.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "minecraft:diamond_pickaxe", "weight": 1,
+          "functions": [{ "function": "minecraft:set_damage", "damage": { "type": "minecraft:uniform", "min": 0.4, "max": 1.0 } },
+            { "function": "minecraft:enchant_with_levels", "levels": { "type": "minecraft:uniform", "min": 0.0, "max": 15.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "minecraft:iron_axe", "weight": 3,
+          "functions": [{ "function": "minecraft:set_damage", "damage": { "type": "minecraft:uniform", "min": 0.9, "max": 1.0 } },
+            { "function": "minecraft:enchant_with_levels", "levels": { "type": "minecraft:uniform", "min": 10.0, "max": 30.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "minecraft:iron_sword", "weight": 3,
+          "functions": [{ "function": "minecraft:set_damage", "damage": { "type": "minecraft:uniform", "min": 0.9, "max": 1.0 } },
+            { "function": "minecraft:enchant_with_levels", "levels": { "type": "minecraft:uniform", "min": 10.0, "max": 30.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "minecraft:iron_shovel", "weight": 3,
+          "functions": [{ "function": "minecraft:set_damage", "damage": { "type": "minecraft:uniform", "min": 0.9, "max": 1.0 } },
+            { "function": "minecraft:enchant_with_levels", "levels": { "type": "minecraft:uniform", "min": 10.0, "max": 30.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "minecraft:iron_pickaxe", "weight": 3,
+          "functions": [{ "function": "minecraft:set_damage", "damage": { "type": "minecraft:uniform", "min": 0.9, "max": 1.0 } },
+            { "function": "minecraft:enchant_with_levels", "levels": { "type": "minecraft:uniform", "min": 10.0, "max": 30.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "minecraft:crossbow", "weight": 4,
+          "functions": [{ "function": "minecraft:set_damage", "damage": { "type": "minecraft:uniform", "min": 1.0, "max": 1.0 } },
+            { "function": "minecraft:enchant_with_levels", "levels": { "type": "minecraft:uniform", "min": 0.0, "max": 15.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "minecraft:bow", "weight": 4,
+          "functions": [{ "function": "minecraft:set_damage", "damage": { "type": "minecraft:uniform", "min": 0.8, "max": 1.0 } },
+            { "function": "minecraft:enchant_with_levels", "levels": { "type": "minecraft:uniform", "min": 0.0, "max": 15.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "minecraft:ender_pearl", "weight": 3,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 2.0, "max": 4.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "minecraft:book", "weight": 3,
+          "functions": [{ "function": "minecraft:enchant_with_levels", "levels": { "type": "minecraft:uniform", "min": 5.0, "max": 15.0 } }]
+        }
+      ]
+    },
+    {
+      "rolls": { "type": "minecraft:uniform", "min": 1.0, "max": 2.0 },
+      "entries": [
+        { "type": "minecraft:empty", "weight": 15 },
+        {
+          "type": "minecraft:item", "name": "minecraft:crossbow", "weight": 4,
+          "functions": [{ "function": "minecraft:enchant_with_levels", "levels": { "type": "minecraft:uniform", "min": 10.0, "max": 30.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "minecraft:book", "weight": 5,
+          "functions": [{ "function": "minecraft:enchant_with_levels", "levels": { "type": "minecraft:uniform", "min": 10.0, "max": 25.0 } }]
+        },
+        { "type": "minecraft:item", "name": "minecraft:golden_apple", "weight": 5,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 2.0, "max": 4.0 } }]
+        },
+        { "type": "minecraft:item", "name": "minecraft:enchanted_golden_apple", "weight": 3 },
+        { "type": "minecraft:item", "name": "minecraft:totem_of_undying", "weight": 1 }
+      ]
+    }
+  ]
+}

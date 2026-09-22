@@ -1,0 +1,99 @@
+{
+  "type": "minecraft:chest",
+  "pools": [
+    {
+      "rolls": { "type": "minecraft:uniform", "min": 4.0, "max": 7.0 },
+      "entries": [
+        {
+          "type": "minecraft:item", "name": "minecraft:diamond", "weight": 2,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 1.0, "max": 5.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "minecraft:obsidian", "weight": 4,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 1.0, "max": 4.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "create:powdered_obsidian", "weight": 4,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 1.0, "max": 4.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "minecraft:emerald", "weight": 10,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 5.0, "max": 12.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "minecraft:lapis_lazuli", "weight": 8,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 10.0, "max": 20.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "minecraft:redstone", "weight": 8,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 10.0, "max": 20.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "minecraft:iron_ingot", "weight": 8,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 6.0, "max": 10.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "minecraft:raw_iron_block", "weight": 5,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 1.0, "max": 4.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "minecraft:gold_ingot", "weight": 7,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 5.0, "max": 10.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "minecraft:raw_copper_block", "weight": 7,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 1.0, "max": 5.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "minecraft:coal_block", "weight": 7,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 1.0, "max": 5.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "create:andesite_alloy", "weight": 8,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 5.0, "max": 10.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "create:andesite_alloy_block", "weight": 5,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 1.0, "max": 4.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "create:raw_zinc_block", "weight": 6,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 1.0, "max": 4.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "create:zinc_ingot", "weight": 7,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 4.0, "max": 8.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "create:brass_ingot", "weight": 3,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 1.0, "max": 5.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "create:polished_rose_quartz", "weight": 4,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 3.0, "max": 6.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "minecraft:amethyst_shard", "weight": 4,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 4.0, "max": 6.0 } }]
+        }
+      ]
+    },
+    {
+      "rolls": 1.0,
+      "entries": [
+        { "type": "minecraft:empty", "weight": 12 },
+        { "type": "minecraft:item", "name": "create:goggles", "weight": 2 },
+        { "type": "minecraft:item", "name": "aeronautics:aviators_goggles", "weight": 2 },
+        { "type": "minecraft:item", "name": "create:wrench", "weight": 2 },
+        { "type": "minecraft:item", "name": "create:precision_mechanism", "weight": 1 },
+        { "type": "minecraft:item", "name": "simulated:gyroscopic_mechanism", "weight": 1 },
+        { "type": "minecraft:item", "name": "create:brass_hand", "weight": 2 },
+        { "type": "minecraft:item", "name": "create:sturdy_sheet", "weight": 2 },
+        { "type": "minecraft:item", "name": "minecraft:lava_bucket", "weight": 2 },
+        { "type": "minecraft:item", "name": "minecraft:experience_bottle", "weight": 3,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 1.0, "max": 6.0 } }]
+        }
+      ]
+    }
+  ]
+}

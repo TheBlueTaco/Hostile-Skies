@@ -1,0 +1,119 @@
+{
+  "type": "minecraft:chest",
+  "pools": [
+    {
+      "rolls": { "type": "minecraft:uniform", "min": 5.0, "max": 7.0 },
+      "entries": [
+        {
+          "type": "minecraft:item", "name": "create:white_sail", "weight": 2,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 6.0, "max": 14.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "create:shaft", "weight": 2,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 6.0, "max": 8.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "create:cogwheel", "weight": 2,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 4.0, "max": 8.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "create:large_cogwheel", "weight": 2,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 4.0, "max": 8.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "aeronautics:white_envelope", "weight": 2,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 6.0, "max": 12.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "create:copycat_panel", "weight": 2,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 3.0, "max": 6.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "create:empty_blaze_burner", "weight": 2,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 1.0, "max": 1.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "aeronautics:adjustable_burner", "weight": 2,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 1.0, "max": 2.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "aeronautics:steam_vent", "weight": 2,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 1.0, "max": 2.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "create:fluid_tank", "weight": 2,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 2.0, "max": 4.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "create:steam_engine", "weight": 2,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 1.0, "max": 2.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "create:mechanical_bearing", "weight": 2,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 1.0, "max": 2.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "simulated:swivel_bearing", "weight": 2,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 1.0, "max": 2.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "simulated:black_portable_engine", "weight": 2,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 1.0, "max": 2.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "create:item_vault", "weight": 2,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 2.0, "max": 4.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "create:mechanical_press", "weight": 2,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 1.0, "max": 3.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "create:mechanical_mixer", "weight": 2,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 1.0, "max": 3.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "create:basin", "weight": 2,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 1.0, "max": 3.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "create:depot", "weight": 2,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 1.0, "max": 3.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "create:display_board", "weight": 2,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 2.0, "max": 4.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "create:belt_connector", "weight": 2,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 2.0, "max": 4.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "simulated:spring", "weight": 2,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 1.0, "max": 4.0 } }]
+        }
+      ]
+    },
+    {
+      "rolls": { "type": "minecraft:uniform", "min": 2.0, "max": 5.0 },
+      "entries": [
+        { "type": "minecraft:empty", "weight": 24 },
+        { "type": "minecraft:item", "name": "create:crushing_wheel", "weight": 1 },
+        { "type": "minecraft:item", "name": "create:deployer", "weight": 2 },
+        { "type": "minecraft:item", "name": "aeronautics:propeller_bearing", "weight": 2 },
+        { "type": "minecraft:item", "name": "simulated:physics_assembler", "weight": 2 },
+        { "type": "minecraft:item", "name": "create:transmitter", "weight": 2 },
+        { "type": "minecraft:item", "name": "simulated:honey_glue", "weight": 1 },
+        { "type": "minecraft:item", "name": "create:super_glue", "weight": 1 },
+        { "type": "minecraft:item", "name": "create:black_toolbox", "weight": 1 }
+      ]
+    },
+    {
+      "rolls": 1.0,
+      "entries": [
+        { "type": "minecraft:empty", "weight": 8 },
+        { "type": "minecraft:loot_table", "value": "hostile_skies:chests/rope_bundle", "weight": 2 }
+      ]
+    }
+  ]
+}
