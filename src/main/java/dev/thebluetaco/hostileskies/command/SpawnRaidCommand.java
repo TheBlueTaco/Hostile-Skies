@@ -359,16 +359,14 @@ public class SpawnRaidCommand {
             }
         }
 
-        // Fall back to explicit spawn positions from the ship JSON when no seats exist
-        if (captainSeats.isEmpty()) {
-            for (int[] pos : ship.crew.captainSpawns) {
-                captainSeats.add(new BlockPos(pos[0], pos[1], pos[2]));
-            }
+        // Fall back to explicit spawn positions from the ship JSON when no more seats exist
+        for (int[] pos : ship.crew.captainSpawns) {
+            BlockPos bp = new BlockPos(pos[0], pos[1], pos[2]);
+            if (!captainSeats.contains(bp)) captainSeats.add(bp);
         }
-        if (crewSeats.isEmpty()) {
-            for (int[] pos : ship.crew.crewSpawns) {
-                crewSeats.add(new BlockPos(pos[0], pos[1], pos[2]));
-            }
+        for (int[] pos : ship.crew.crewSpawns) {
+            BlockPos bp = new BlockPos(pos[0], pos[1], pos[2]);
+            if (!crewSeats.contains(bp)) crewSeats.add(bp);
         }
 
         // Compute offset between structure-relative and plot-absolute coordinates.
