@@ -1,6 +1,6 @@
 {
   "type": "minecraft:chest",
-  "random_sequence": "hostile_skies:chests/tier3_SkyReaver",
+  "random_sequence": "hostile_skies:chests/tier3_sky_reaver",
   "pools": [
     {
       "rolls": 1,

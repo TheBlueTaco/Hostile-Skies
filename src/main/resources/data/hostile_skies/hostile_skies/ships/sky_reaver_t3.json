@@ -57,7 +57,7 @@
   },
 
   "loot": {
-    "containerTable": "hostile_skies:chests/tier3_SkyReaver",
+    "containerTable": "hostile_skies:chests/tier3_sky_reaver",
     "captainTable": "hostile_skies:chests/captains_chest",
     "captainChest": [75, 20, 24]
   },
